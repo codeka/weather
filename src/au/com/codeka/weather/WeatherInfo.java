@@ -86,6 +86,7 @@ public class WeatherInfo {
           .create();
 
       try {
+        Log.d(TAG, "Querying google for geocode info.");
         String latlng = lat + "," + lng;
         URL url = new URL("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + latlng);
         URLConnection conn = url.openConnection();
@@ -93,14 +94,16 @@ public class WeatherInfo {
         JsonReader json = new JsonReader(new InputStreamReader(ins, "UTF-8"));
         weatherInfo.mGeocodeInfo = gson.fromJson(json, GeocodeInfo.class);
 
-        Log.d(TAG, "GeocodeInfo: "+weatherInfo.getGeocodeInfo());
+        ActivityLog.current().log("Geocoded location: " + weatherInfo.getGeocodeInfo());
       } catch (IOException e) {
         Log.e(TAG, "Error fetching geocode information.", e);
+        ActivityLog.current().log("Error Fetching Geocode: " + e.getMessage());
         return null;
       }
 
       OpenWeatherMapInfo.CurrentConditions currentConditions;
       try {
+        Log.d(TAG, "Querying openweathermap for current conditions.");
         String query = weatherInfo.getGeocodeInfo().getShortName().replace(" ", "")
             .toLowerCase(Locale.ENGLISH);
         URL url = new URL("http://api.openweathermap.org/data/2.5/weather?q=" + query);
@@ -109,14 +112,15 @@ public class WeatherInfo {
         JsonReader json = new JsonReader(new InputStreamReader(ins, "UTF-8"));
         currentConditions = gson.fromJson(json, OpenWeatherMapInfo.CurrentConditions.class);
 
-        Log.d(TAG, "Weather: "+weatherInfo.getWeather());
       } catch (IOException e) {
         Log.e(TAG, "Error fetching weather information.", e);
+        ActivityLog.current().log("Error Fetching Weather: " + e.getMessage());
         return null;
       }
 
       OpenWeatherMapInfo.Forecast forecast;
       try {
+        Log.d(TAG, "Querying openweathermap for forecast.");
         String query = weatherInfo.getGeocodeInfo().getShortName().replace(" ", "")
             .toLowerCase(Locale.ENGLISH);
         URL url = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?q=" + query +
@@ -126,13 +130,15 @@ public class WeatherInfo {
         JsonReader json = new JsonReader(new InputStreamReader(ins, "UTF-8"));
         forecast = gson.fromJson(json, OpenWeatherMapInfo.Forecast.class);
 
-        Log.d(TAG, "Weather: "+weatherInfo.getWeather());
       } catch (IOException e) {
         Log.e(TAG, "Error fetching weather information.", e);
+        ActivityLog.current().log("Error Fetching Weather: " + e.getMessage());
         return null;
       }
 
       weatherInfo.mWeatherInfo = new OpenWeatherMapInfo(currentConditions, forecast);
+      ActivityLog.current().log("Weather: " + weatherInfo.getWeather());
+      Log.d(TAG, "Weather: "+weatherInfo.getWeather());
       return weatherInfo;
     }
   }

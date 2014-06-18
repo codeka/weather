@@ -29,6 +29,11 @@ public class OpenWeatherMapInfo {
     return mForecast.list[day - 1];
   }
 
+  @Override
+  public String toString() {
+    return mCurrentConditions.getTemp() + "°C, " + mCurrentConditions.getDescription();
+  }
+
   public static class CurrentConditions {
     private Sys sys;
     private Weather[] weather;
