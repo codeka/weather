@@ -87,21 +87,10 @@ public class WeatherWidgetProvider extends AppWidgetProvider {
   public void onUpdate(Context context, AppWidgetManager mgr, int[] appWidgetIds) {
     super.onUpdate(context, mgr, appWidgetIds);
 
-    // make sure the alarm is running
-    AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-    Intent intent = new Intent(context, WeatherAlarmReceiver.class);
-    PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+    WeatherAlarmReceiver.schedule(context);
 
-    long millisPerMinute = 1000 * 60;
-    long nextMinute = System.currentTimeMillis();
-    nextMinute = nextMinute - (nextMinute % millisPerMinute) + millisPerMinute;
-    Log.d(TAG, "now="+System.currentTimeMillis()+" nextMinute="+nextMinute);
-
-    alarmManager.setRepeating(AlarmManager.RTC, nextMinute,
-        1000 * 60 * 1, // every minute (we have to at least update the clock)
-        pendingIntent);
-
-    intent = findClockIntent(context);
+    PendingIntent pendingIntent;
+    Intent intent = findClockIntent(context);
     if (intent != null) {
       pendingIntent = PendingIntent.getActivity(context, 0, intent,
          PendingIntent.FLAG_UPDATE_CURRENT);
