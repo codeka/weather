@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+  <!--
+    Base application theme, dependent on API level. This theme is replaced
+    by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+  -->
+  <style name="AppBaseTheme" parent="android:Theme.Light">
+
+  </style>
+
+  <!-- Application theme. -->
+  <style name="AppTheme" parent="AppBaseTheme">
+  </style>
+
+  <style name="BaseText" parent="AppBaseTheme">
+    <item name="android:textColor">#ffffff</item>
+    <item name="android:fontFamily">sans-serif-condensed</item>
+    <item name="android:textStyle">normal</item>
+  </style>
+
+  <style name="TimeText" parent="BaseText">
+    <item name="android:textSize">40sp</item>
+  </style>
+
+  <style name="TimeAmPmText" parent="BaseText">
+    <item name="android:textSize">20sp</item>
+  </style>
+
+  <style name="DateText" parent="BaseText">
+    <item name="android:textSize">18sp</item>
+  </style>
+
+  <style name="AlarmText" parent="BaseText">
+    <item name="android:textSize">18sp</item>
+  </style>
+
+  <style name="WeatherTempText" parent="BaseText">
+    <item name="android:textSize">24sp</item>
+  </style>
+
+  <style name="WeatherExtraText" parent="BaseText">
+    <item name="android:textSize">14sp</item>
+  </style>
+
+  <style name="DebugText" parent="AppBaseTheme">
+    <item name="android:fontFamily">monospace</item>
+  </style>
+</resources>

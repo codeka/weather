@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string-array name="charge_directions">
+    <item>Charging</item>
+    <item>Discharging</item>
+  </string-array>
+
+  <string-array name="history_length_display">
+    <item>8 hours</item>
+    <item>12 hours</item>
+    <item>1 day</item>
+    <item>2 days</item>
+    <item>3 days</item>
+    <item>1 week</item>
+  </string-array>
+  <string-array name="history_length_values">
+    <item>8</item>
+    <item>12</item>
+    <item>24</item>
+    <item>48</item>
+    <item>72</item>
+    <item>168</item>
+  </string-array>
+</resources>

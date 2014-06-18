@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="au.com.codeka.weather"
+          android:versionCode="1"
+          android:versionName="0.1.0" >
+  <uses-sdk android:minSdkVersion="16"
+            android:targetSdkVersion="19" />
+
+  <!-- required because we use an alarm to query the weather service -->
+  <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+  <!-- location queries we make -->
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+  <!-- for fetching actual weather info, etc -->
+  <uses-permission android:name="android.permission.INTERNET" />
+
+  <application android:allowBackup="true"
+               android:icon="@drawable/ic_launcher"
+               android:label="@string/app_name"
+               android:theme="@style/AppTheme" >
+
+    <activity android:name=".WeatherActivity">
+      <intent-filter>
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+
+    <activity android:name=".DebugActivity"
+              android:label="@string/debug_activity_title"
+              android:parentActivityName=".WeatherActivity">
+    </activity>
+    
+    <receiver android:process=":remote"
+              android:name=".WeatherAlarmReceiver" />
+
+    <receiver android:name=".WeatherWidgetProvider"
+              android:label="@string/app_name">
+      <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+      </intent-filter>
+      <meta-data android:name="android.appwidget.provider"
+                 android:resource="@xml/weather_widget_provider" />
+    </receiver>
+  </application>
+</manifest>
