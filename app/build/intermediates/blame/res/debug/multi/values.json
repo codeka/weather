@@ -1,0 +1,318 @@
+[
+    {
+        "outputFile": "/home/dean/src/weather/code/app/build/intermediates/res/merged/debug/values/values.xml",
+        "map": [
+            {
+                "to": {
+                    "startLine": 2,
+                    "startColumn": 4,
+                    "startOffset": 55,
+                    "endLine": 5,
+                    "endColumn": 17,
+                    "endOffset": 167
+                },
+                "from": {
+                    "file": "/home/dean/src/weather/code/app/src/main/res/values/array.xml",
+                    "position": {
+                        "startLine": 2,
+                        "startColumn": 2,
+                        "startOffset": 53,
+                        "endLine": 5,
+                        "endColumn": 17,
+                        "endOffset": 165
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 6,
+                    "startColumn": 4,
+                    "startOffset": 172,
+                    "endLine": 13,
+                    "endColumn": 17,
+                    "endOffset": 380
+                },
+                "from": {
+                    "file": "/home/dean/src/weather/code/app/src/main/res/values/array.xml",
+                    "position": {
+                        "startLine": 7,
+                        "startColumn": 2,
+                        "startOffset": 169,
+                        "endLine": 14,
+                        "endColumn": 17,
+                        "endOffset": 377
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 14,
+                    "startColumn": 4,
+                    "startOffset": 385,
+                    "endLine": 21,
+                    "endColumn": 17,
+                    "endOffset": 566
+                },
+                "from": {
+                    "file": "/home/dean/src/weather/code/app/src/main/res/values/array.xml",
+                    "position": {
+                        "startLine": 15,
+                        "startColumn": 2,
+                        "startOffset": 380,
+                        "endLine": 22,
+                        "endColumn": 17,
+                        "endOffset": 561
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 22,
+                    "startColumn": 4,
+                    "startOffset": 571,
+                    "endColumn": 44,
+                    "endOffset": 611
+                },
+                "from": {
+                    "file": "/home/dean/src/weather/code/app/src/main/res/values/strings.xml",
+                    "position": {
+                        "startLine": 2,
+                        "startColumn": 2,
+                        "startOffset": 53,
+                        "endColumn": 42,
+                        "endOffset": 93
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 23,
+                    "startColumn": 4,
+                    "startOffset": 616,
+                    "endColumn": 54,
+                    "endOffset": 666
+                },
+                "from": {
+                    "file": "/home/dean/src/weather/code/app/src/main/res/values/strings.xml",
+                    "position": {
+                        "startLine": 3,
+                        "startColumn": 2,
+                        "startOffset": 96,
+                        "endColumn": 52,
+                        "endOffset": 146
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 24,
+                    "startColumn": 4,
+                    "startOffset": 671,
+                    "endLine": 26,
+                    "endColumn": 10,
+                    "endOffset": 770
+                },
+                "from": {
+                    "file": "/home/dean/src/weather/code/app/src/main/res/values/styles.xml",
+                    "position": {
+                        "startLine": 32,
+                        "startColumn": 2,
+                        "startOffset": 964,
+                        "endLine": 34,
+                        "endColumn": 10,
+                        "endOffset": 1063
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 27,
+                    "startColumn": 4,
+                    "startOffset": 775,
+                    "endLine": 29,
+                    "endColumn": 10,
+                    "endOffset": 843
+                },
+                "from": {
+                    "file": "/home/dean/src/weather/code/app/src/main/res/values/styles.xml",
+                    "position": {
+                        "startLine": 6,
+                        "startColumn": 2,
+                        "startOffset": 269,
+                        "endLine": 8,
+                        "endColumn": 10,
+                        "endOffset": 337
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 30,
+                    "startColumn": 4,
+                    "startOffset": 848,
+                    "endLine": 31,
+                    "endColumn": 10,
+                    "endOffset": 904
+                },
+                "from": {
+                    "file": "/home/dean/src/weather/code/app/src/main/res/values/styles.xml",
+                    "position": {
+                        "startLine": 11,
+                        "startColumn": 2,
+                        "startOffset": 371,
+                        "endLine": 12,
+                        "endColumn": 10,
+                        "endOffset": 427
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 32,
+                    "startColumn": 4,
+                    "startOffset": 909,
+                    "endLine": 36,
+                    "endColumn": 10,
+                    "endOffset": 1128
+                },
+                "from": {
+                    "file": "/home/dean/src/weather/code/app/src/main/res/values/styles.xml",
+                    "position": {
+                        "startLine": 14,
+                        "startColumn": 2,
+                        "startOffset": 431,
+                        "endLine": 18,
+                        "endColumn": 10,
+                        "endOffset": 650
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 37,
+                    "startColumn": 4,
+                    "startOffset": 1133,
+                    "endLine": 39,
+                    "endColumn": 10,
+                    "endOffset": 1231
+                },
+                "from": {
+                    "file": "/home/dean/src/weather/code/app/src/main/res/values/styles.xml",
+                    "position": {
+                        "startLine": 28,
+                        "startColumn": 2,
+                        "startOffset": 862,
+                        "endLine": 30,
+                        "endColumn": 10,
+                        "endOffset": 960
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 40,
+                    "startColumn": 4,
+                    "startOffset": 1236,
+                    "endLine": 42,
+                    "endColumn": 10,
+                    "endOffset": 1346
+                },
+                "from": {
+                    "file": "/home/dean/src/weather/code/app/src/main/res/values/styles.xml",
+                    "position": {
+                        "startLine": 44,
+                        "startColumn": 2,
+                        "startOffset": 1286,
+                        "endLine": 46,
+                        "endColumn": 10,
+                        "endOffset": 1396
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 43,
+                    "startColumn": 4,
+                    "startOffset": 1351,
+                    "endLine": 45,
+                    "endColumn": 10,
+                    "endOffset": 1453
+                },
+                "from": {
+                    "file": "/home/dean/src/weather/code/app/src/main/res/values/styles.xml",
+                    "position": {
+                        "startLine": 24,
+                        "startColumn": 2,
+                        "startOffset": 756,
+                        "endLine": 26,
+                        "endColumn": 10,
+                        "endOffset": 858
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 46,
+                    "startColumn": 4,
+                    "startOffset": 1458,
+                    "endLine": 48,
+                    "endColumn": 10,
+                    "endOffset": 1556
+                },
+                "from": {
+                    "file": "/home/dean/src/weather/code/app/src/main/res/values/styles.xml",
+                    "position": {
+                        "startLine": 20,
+                        "startColumn": 2,
+                        "startOffset": 654,
+                        "endLine": 22,
+                        "endColumn": 10,
+                        "endOffset": 752
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 49,
+                    "startColumn": 4,
+                    "startOffset": 1561,
+                    "endLine": 51,
+                    "endColumn": 10,
+                    "endOffset": 1667
+                },
+                "from": {
+                    "file": "/home/dean/src/weather/code/app/src/main/res/values/styles.xml",
+                    "position": {
+                        "startLine": 40,
+                        "startColumn": 2,
+                        "startOffset": 1176,
+                        "endLine": 42,
+                        "endColumn": 10,
+                        "endOffset": 1282
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 52,
+                    "startColumn": 4,
+                    "startOffset": 1672,
+                    "endLine": 54,
+                    "endColumn": 10,
+                    "endOffset": 1777
+                },
+                "from": {
+                    "file": "/home/dean/src/weather/code/app/src/main/res/values/styles.xml",
+                    "position": {
+                        "startLine": 36,
+                        "startColumn": 2,
+                        "startOffset": 1067,
+                        "endLine": 38,
+                        "endColumn": 10,
+                        "endOffset": 1172
+                    }
+                }
+            }
+        ]
+    }
+]

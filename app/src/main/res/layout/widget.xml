@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/background"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/clock_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@+id/current_icon"
+        android:layout_marginRight="-8dp" />
+
+    <ImageView
+        android:id="@+id/weather_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignLeft="@+id/current_icon" />
+
+    <ImageView
+        android:id="@+id/current_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_margin="8dp"
+        android:src="@drawable/weather_clear" />
+
+    <ImageView
+        android:id="@+id/center"
+        android:layout_width="1dp"
+        android:layout_centerInParent="true"
+        android:layout_height="1dp" />
+
+    <TextView
+        android:id="@+id/current_time_ampm"
+        style="@style/TimeAmPmText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/current_time"
+        android:layout_toLeftOf="@+id/current_icon"
+        android:layout_marginLeft="4dp" />
+
+    <TextView
+        android:id="@+id/current_time"
+        style="@style/TimeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/center"
+        android:layout_toLeftOf="@+id/current_time_ampm"
+        android:layout_marginBottom="-8dp"
+        android:singleLine="true"
+        android:ellipsize="none"
+        android:gravity="right" />
+
+    <TextView
+        android:id="@+id/current_date"
+        style="@style/DateText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/center"
+        android:layout_gravity="center"
+        android:layout_alignRight="@+id/current_time_ampm"
+        android:singleLine="true"
+        android:ellipsize="none"
+        android:gravity="right" />
+
+    <TextView
+        android:id="@+id/next_alarm"
+        style="@style/AlarmText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/current_date"
+        android:layout_gravity="center"
+        android:layout_alignRight="@+id/current_time_ampm"
+        android:singleLine="true"
+        android:ellipsize="none"
+        android:gravity="right" />
+
+    <TextView
+        android:id="@+id/geocode_location"
+        style="@style/WeatherExtraText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/current_icon"
+        android:layout_above="@+id/center" />
+
+    <TextView
+        android:id="@+id/weather_temp"
+        style="@style/WeatherTempText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/geocode_location"
+        android:layout_toRightOf="@+id/current_icon" />
+
+    <TextView
+        android:id="@+id/weather_text"
+        style="@style/WeatherExtraText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/weather_temp"
+        android:layout_alignTop="@+id/weather_temp"
+        android:layout_alignBottom="@+id/weather_temp"
+        android:layout_marginLeft="4dp"
+        android:gravity="center_vertical"
+        android:maxLines="2" />
+
+    <ImageView
+        android:id="@+id/tomorrow_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/center"
+        android:layout_toRightOf="@id/current_icon" />
+
+    <TextView
+        android:id="@+id/tomorrow_text"
+        style="@style/WeatherExtraText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/tomorrow_icon"
+        android:layout_alignTop="@+id/tomorrow_icon"
+        android:layout_marginLeft="4dp"
+        android:text="Tomorrow" />
+
+    <TextView
+        android:id="@+id/tomorrow_weather"
+        style="@style/WeatherExtraText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/tomorrow_icon"
+        android:layout_alignBottom="@+id/tomorrow_icon"
+        android:layout_marginLeft="4dp" />
+    
+</RelativeLayout>

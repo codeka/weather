@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="charge_directions">
+    <item>Charging</item>
+    <item>Discharging</item>
+  </string-array>
+    <string-array name="history_length_display">
+    <item>8 hours</item>
+    <item>12 hours</item>
+    <item>1 day</item>
+    <item>2 days</item>
+    <item>3 days</item>
+    <item>1 week</item>
+  </string-array>
+    <string-array name="history_length_values">
+    <item>8</item>
+    <item>12</item>
+    <item>24</item>
+    <item>48</item>
+    <item>72</item>
+    <item>168</item>
+  </string-array>
+    <string name="app_name">Weather</string>
+    <string name="debug_activity_title">Debug</string>
+    <style name="AlarmText" parent="BaseText">
+    <item name="android:textSize">18sp</item>
+  </style>
+    <style name="AppBaseTheme" parent="android:Theme.Light">
+
+  </style>
+    <style name="AppTheme" parent="AppBaseTheme">
+  </style>
+    <style name="BaseText" parent="AppBaseTheme">
+    <item name="android:textColor">#ffffff</item>
+    <item name="android:fontFamily">sans-serif-condensed</item>
+    <item name="android:textStyle">normal</item>
+  </style>
+    <style name="DateText" parent="BaseText">
+    <item name="android:textSize">18sp</item>
+  </style>
+    <style name="DebugText" parent="AppBaseTheme">
+    <item name="android:fontFamily">monospace</item>
+  </style>
+    <style name="TimeAmPmText" parent="BaseText">
+    <item name="android:textSize">20sp</item>
+  </style>
+    <style name="TimeText" parent="BaseText">
+    <item name="android:textSize">40sp</item>
+  </style>
+    <style name="WeatherExtraText" parent="BaseText">
+    <item name="android:textSize">14sp</item>
+  </style>
+    <style name="WeatherTempText" parent="BaseText">
+    <item name="android:textSize">24sp</item>
+  </style>
+</resources>
