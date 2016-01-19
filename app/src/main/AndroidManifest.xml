@@ -3,8 +3,6 @@
           package="au.com.codeka.weather"
           android:versionCode="1"
           android:versionName="0.1.0" >
-  <uses-sdk android:minSdkVersion="16"
-            android:targetSdkVersion="19" />
 
   <!-- required because we use an alarm to query the weather service -->
   <uses-permission android:name="android.permission.WAKE_LOCK" />

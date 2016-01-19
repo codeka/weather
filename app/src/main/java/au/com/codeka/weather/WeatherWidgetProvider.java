@@ -25,10 +25,6 @@ public class WeatherWidgetProvider extends AppWidgetProvider {
   private RemoteViews mRemoteViews;
   private ComponentName mComponentName;
 
-  private static final SimpleDateFormat sTimeFormat = new SimpleDateFormat("h:mm", Locale.ENGLISH);
-  private static final SimpleDateFormat sAmPmFormat = new SimpleDateFormat("a", Locale.ENGLISH);
-  private static final SimpleDateFormat sDateFormat = new SimpleDateFormat("EEE, d MMMM, yyyy", Locale.ENGLISH);
-
   public static final String CUSTOM_REFRESH_ACTION = "au.com.codeka.weather.UpdateAction";
 
   /**
@@ -88,35 +84,15 @@ public class WeatherWidgetProvider extends AppWidgetProvider {
 
     WeatherAlarmReceiver.schedule(context);
 
-    PendingIntent pendingIntent;
-    Intent intent = findClockIntent(context);
-    if (intent != null) {
-      pendingIntent = PendingIntent.getActivity(context, 0, intent,
-         PendingIntent.FLAG_UPDATE_CURRENT);
-      mRemoteViews.setOnClickPendingIntent(R.id.clock_btn, pendingIntent);
-    }
-
-    intent = new Intent(context, WeatherActivity.class);
-    pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    Intent intent = new Intent(context, WeatherActivity.class);
+    PendingIntent pendingIntent =
+        PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     mRemoteViews.setOnClickPendingIntent(R.id.weather_btn, pendingIntent);
 
     refreshWidget(context);
   }
 
   private void refreshWidget(Context context) {
-    Date dt = new Date();
-    mRemoteViews.setTextViewText(R.id.current_time, sTimeFormat.format(dt));
-    mRemoteViews.setTextViewText(R.id.current_time_ampm, sAmPmFormat.format(dt));
-    mRemoteViews.setTextViewText(R.id.current_date, sDateFormat.format(dt));
-
-    String nextAlarm = Settings.System.getString(context.getContentResolver(),
-        Settings.System.NEXT_ALARM_FORMATTED);
-    if (nextAlarm != null && nextAlarm.length() > 0) {
-      mRemoteViews.setTextViewText(R.id.next_alarm, "\u23F0 " + nextAlarm);
-    } else {
-      mRemoteViews.setTextViewText(R.id.next_alarm, "");
-    }
-
     SharedPreferences prefs = context.getSharedPreferences("au.com.codeka.weather",
         Context.MODE_PRIVATE);
     WeatherInfo weatherInfo = new WeatherInfo.Builder().load(prefs);
@@ -124,8 +100,9 @@ public class WeatherWidgetProvider extends AppWidgetProvider {
       return;
     }
 
-    OpenWeatherMapInfo.CurrentConditions currentConditions = weatherInfo.getWeather().getCurrentConditions();
-    mRemoteViews.setTextViewText(R.id.weather_temp, String.format("%d \u00B0C", 
+    OpenWeatherMapInfo.CurrentConditions currentConditions =
+        weatherInfo.getWeather().getCurrentConditions();
+    mRemoteViews.setTextViewText(R.id.weather_temp, String.format("%d °C",
         (int) Math.round(currentConditions.getTemp())));
     mRemoteViews.setTextViewText(R.id.weather_text, currentConditions.getDescription());
 
@@ -134,27 +111,10 @@ public class WeatherWidgetProvider extends AppWidgetProvider {
 
     mRemoteViews.setImageViewResource(R.id.current_icon, currentConditions.getLargeIcon());
 
-    OpenWeatherMapInfo.ForecastEntry tomorrowWeather = weatherInfo.getWeather().getForecast(1);
-    mRemoteViews.setTextViewText(R.id.tomorrow_weather, tomorrowWeather.getDescription());
+    OpenWeatherMapInfo.ForecastEntry tomorrowWeather = weatherInfo.getWeather().getForecast(2);
+    Log.i(TAG, String.format("Forecast for %s", tomorrowWeather.getTimeStamp()));
+    mRemoteViews.setTextViewText(R.id.tomorrow_weather, String.format(
+        "%d °C %s", Math.round(tomorrowWeather.getMaxTemp()), tomorrowWeather.getDescription()));
     mRemoteViews.setImageViewResource(R.id.tomorrow_icon, tomorrowWeather.getSmallIcon());
-  }
-
-  private Intent findClockIntent(Context context) {
-    PackageManager packageManager = context.getPackageManager();
-    Intent intent = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
-
-    try {
-      ComponentName cn = new ComponentName("com.google.android.deskclock",
-          "com.android.deskclock.DeskClock");
-      packageManager.getActivityInfo(cn, PackageManager.GET_META_DATA);
-
-      intent.setComponent(cn);
-    } catch (PackageManager.NameNotFoundException e) {
-      Log.w(TAG, "Could not find Clock activity!");
-      // couldn't find clock action, shouldn't happen on stock Android.
-      return null;
-    }
-
-    return intent;
   }
 }

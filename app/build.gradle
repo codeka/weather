@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "au.com.codeka.weather"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 23
     }
 

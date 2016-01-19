@@ -1,5 +1,6 @@
 package au.com.codeka.weather;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -95,6 +96,10 @@ public class OpenWeatherMapInfo {
     private float deg;
     private float clouds;
 
+    public Date getTimeStamp() {
+      return new Date(dt * 1000);
+    }
+
     /** Gets a description of the weather (clear, cloudy, rain, etc) */
     public String getDescription() {
       WeatherCondition cond = sWeatherConditions.get(weather[0].id);
@@ -118,6 +123,10 @@ public class OpenWeatherMapInfo {
         return R.drawable.weather_clear_small;
       }
       return cond.getSmallIcon(false);
+    }
+
+    public float getMaxTemp() {
+      return temp.max;
     }
   }
 
