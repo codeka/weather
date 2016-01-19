@@ -19,18 +19,18 @@ import com.google.gson.GsonBuilder;
 /** For debugging purposes, we keep a log of everything we do. */
 public class ActivityLog {
   private static final String TAG = ActivityLog.class.getSimpleName();
-  private static EntryBuilder mCurrentEntryBuilder;
+  private static EntryBuilder currentEntryBuilder;
 
   public static EntryBuilder current() {
-    if (mCurrentEntryBuilder == null) {
-      mCurrentEntryBuilder = new EntryBuilder();
+    if (currentEntryBuilder == null) {
+      currentEntryBuilder = new EntryBuilder();
     }
-    return mCurrentEntryBuilder;
+    return currentEntryBuilder;
   }
 
   public static void saveCurrent(Context context) {
     Entry entry = current().build();
-    mCurrentEntryBuilder = null;
+    currentEntryBuilder = null;
 
     File cacheDir = new File(context.getCacheDir(), "logs");
     cacheDir.mkdirs();
@@ -80,85 +80,86 @@ public class ActivityLog {
 
   /** An entry in the activity log is basically everything that happens in response to the alarm. */
   public static class Entry {
-    private long mTimestamp;
-    private long mMillisToNextAlarm;
-    private double mLat;
-    private double mLng;
-    private LogEntry[] mLogs;
+    private long timestamp;
+    private long millisToNextAlarm;
+    private double lat;
+    private double lng;
+    private LogEntry[] logs;
 
     public long getTimestamp() {
-      return mTimestamp;
+      return timestamp;
     }
 
     public boolean hasLocation() {
-      return mLat != 0.0f && mLng != 0.0f;
+      return lat != 0.0f && lng != 0.0f;
     }
 
     public String getMapLink() {
-      return String.format(Locale.ENGLISH, "<a href=\"https://www.google.com.au/maps/preview/@%f,%f,16z\">%f,%f</a>",
-          mLat, mLng, mLat, mLng);
+      return String.format(Locale.ENGLISH,
+          "<a href=\"https://www.google.com.au/maps/preview/@%f,%f,16z\">%f,%f</a>",
+          lat, lng, lat, lng);
     }
 
     public LogEntry[] getLogs() {
-      return mLogs;
+      return logs;
     }
 
     public long getMillisToNextAlarm() {
-      return mMillisToNextAlarm;
+      return millisToNextAlarm;
     }
   }
 
   public static class LogEntry {
-    private long mTimestamp;
-    private String mMessage;
+    private long timestamp;
+    private String message;
 
     public long getTimestamp() {
-      return mTimestamp;
+      return timestamp;
     }
 
     public String getMessage() {
-      return mMessage;
+      return message;
     }
   }
 
   public static class EntryBuilder {
-    private Entry mEntry;
+    private Entry entry;
 
     private EntryBuilder() {
-      mEntry = new Entry();
-      mEntry.mTimestamp = System.currentTimeMillis();
+      entry = new Entry();
+      entry.timestamp = System.currentTimeMillis();
     }
 
     public EntryBuilder log(String msg) {
-      if (mEntry.mLogs == null) {
-        mEntry.mLogs = new LogEntry[1];
+      if (entry.logs == null) {
+        entry.logs = new LogEntry[1];
       } else {
-        LogEntry[] newEntries = new LogEntry[mEntry.mLogs.length + 1];
-        for (int i = 0; i < mEntry.mLogs.length; i++) {
-          newEntries[i] = mEntry.mLogs[i];
+        LogEntry[] newEntries = new LogEntry[entry.logs.length + 1];
+        for (int i = 0; i < entry.logs.length; i++) {
+          newEntries[i] = entry.logs[i];
         }
-        mEntry.mLogs = newEntries;
+        entry.logs = newEntries;
       }
       LogEntry logEntry = new LogEntry();
-      logEntry.mTimestamp = System.currentTimeMillis();
-      logEntry.mMessage = msg;
-      mEntry.mLogs[mEntry.mLogs.length - 1] = logEntry;
+      logEntry.timestamp = System.currentTimeMillis();
+      logEntry.message = msg;
+      entry.logs[entry.logs.length - 1] = logEntry;
       return this;
     }
 
     public EntryBuilder setLocation(double lat, double lng) {
-      mEntry.mLat = lat;
-      mEntry.mLng = lng;
+      entry.lat = lat;
+      entry.lng = lng;
       return this;
     }
 
     public EntryBuilder setMillisToNextAlarm(long ms) {
-      mEntry.mMillisToNextAlarm = ms;
+      entry.millisToNextAlarm = ms;
       return this;
     }
 
     private Entry build() {
-      return mEntry;
+      return entry;
     }
   }
 }

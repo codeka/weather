@@ -1,9 +1,7 @@
 package au.com.codeka.weather;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import android.util.SparseArray;
 
@@ -14,25 +12,26 @@ import com.google.gson.annotations.SerializedName;
  */
 @SuppressWarnings("unused") // lots of unused at the moment... don't really care
 public class OpenWeatherMapInfo {
-  private CurrentConditions mCurrentConditions;
-  private Forecast mForecast;
+  private CurrentConditions currentConditions;
+  private Forecast forecast;
 
   public OpenWeatherMapInfo(CurrentConditions currentConditions, Forecast forecast) {
-    mCurrentConditions = currentConditions;
-    mForecast = forecast;
+    this.currentConditions = currentConditions;
+    this.forecast = forecast;
   }
 
   public CurrentConditions getCurrentConditions() {
-    return mCurrentConditions;
+    return currentConditions;
   }
 
+  /** Get the forecast for the given day. 0 == today, 1 == tomorrow, 2 == the day after, etc. */
   public ForecastEntry getForecast(int day) {
-    return mForecast.list[day - 1];
+    return forecast.list[day];
   }
 
   @Override
   public String toString() {
-    return mCurrentConditions.getTemp() + "°C, " + mCurrentConditions.getDescription();
+    return currentConditions.getTemp() + "°C, " + currentConditions.getDescription();
   }
 
   public static class CurrentConditions {
@@ -53,7 +52,7 @@ public class OpenWeatherMapInfo {
 
     /** Gets a description of the weather (clear, cloudy, rain, etc) */
     public String getDescription() {
-      WeatherCondition cond = sWeatherConditions.get(weather[0].id);
+      WeatherCondition cond = WEATHER_CONDITIONS.get(weather[0].id);
       if (cond == null) {
         return String.format(Locale.ENGLISH, "ID: %d", weather[0].id);
       }
@@ -61,7 +60,7 @@ public class OpenWeatherMapInfo {
     }
 
     public int getLargeIcon() {
-      WeatherCondition cond = sWeatherConditions.get(weather[0].id);
+      WeatherCondition cond = WEATHER_CONDITIONS.get(weather[0].id);
       if (cond == null) {
         return R.drawable.weather_clear;
       }
@@ -69,7 +68,7 @@ public class OpenWeatherMapInfo {
     }
 
     public int getSmallIcon() {
-      WeatherCondition cond = sWeatherConditions.get(weather[0].id);
+      WeatherCondition cond = WEATHER_CONDITIONS.get(weather[0].id);
       if (cond == null) {
         return R.drawable.weather_clear_small;
       }
@@ -102,7 +101,7 @@ public class OpenWeatherMapInfo {
 
     /** Gets a description of the weather (clear, cloudy, rain, etc) */
     public String getDescription() {
-      WeatherCondition cond = sWeatherConditions.get(weather[0].id);
+      WeatherCondition cond = WEATHER_CONDITIONS.get(weather[0].id);
       if (cond == null) {
         return String.format(Locale.ENGLISH, "ID: %d", weather[0].id);
       }
@@ -110,7 +109,7 @@ public class OpenWeatherMapInfo {
     }
 
     public int getLargeIcon() {
-      WeatherCondition cond = sWeatherConditions.get(weather[0].id);
+      WeatherCondition cond = WEATHER_CONDITIONS.get(weather[0].id);
       if (cond == null) {
         return R.drawable.weather_clear;
       }
@@ -118,7 +117,7 @@ public class OpenWeatherMapInfo {
     }
 
     public int getSmallIcon() {
-      WeatherCondition cond = sWeatherConditions.get(weather[0].id);
+      WeatherCondition cond = WEATHER_CONDITIONS.get(weather[0].id);
       if (cond == null) {
         return R.drawable.weather_clear_small;
       }
@@ -177,7 +176,7 @@ public class OpenWeatherMapInfo {
   }
 
   /**
-   * An entry in the sWeatherConditions map, for a description of the values, see:
+   * An entry in the WEATHER_CONDITIONS map, for a description of the values, see:
    * http://bugs.openweathermap.org/projects/api/wiki/Weather_Condition_Codes
    */
   public static class WeatherCondition {
@@ -216,7 +215,7 @@ public class OpenWeatherMapInfo {
     }
   }
 
-  private static SparseArray<WeatherCondition> sWeatherConditions = new SparseArray<WeatherCondition>() {{
+  private static final SparseArray<WeatherCondition> WEATHER_CONDITIONS = new SparseArray<WeatherCondition>() {{
     put(200, new WeatherCondition("Light Storm", R.drawable.weather_storm, R.drawable.weather_storm_small));
     put(201, new WeatherCondition("Storm", R.drawable.weather_storm, R.drawable.weather_storm_small));
     put(202, new WeatherCondition("Heavy Storm", R.drawable.weather_storm, R.drawable.weather_storm_small));

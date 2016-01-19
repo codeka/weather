@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.webkit.WebView;
 
-/** Debug activity is used to display the raw JSON we have store, for debugging. */
+/** Debug activity is used to display the raw JSON we have stored, for debugging. */
 public class DebugActivity extends Activity {
   @Override
   public void onCreate(Bundle savedInstanceState) {

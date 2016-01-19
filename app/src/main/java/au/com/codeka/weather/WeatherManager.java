@@ -1,13 +1,17 @@
 package au.com.codeka.weather;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 public class WeatherManager {
@@ -18,30 +22,30 @@ public class WeatherManager {
   private static long MOVING_QUERY_TIME_MS = 60 * 1000;
   private static long LOCATION_UPDATE_TIME_MS = 10 * 60 * 1000;
 
-  private LocationManager mLocationManager;
-  private boolean mQueryInProgress;
+  private LocationManager locationManager;
+  private boolean queryInProgress;
 
   private WeatherManager() {
   }
 
   public void refreshWeather(final Context context, final boolean force) {
-    if (mQueryInProgress) {
+    if (queryInProgress) {
       return;
     }
-    mQueryInProgress = true;
+    queryInProgress = true;
 
     final SharedPreferences prefs = context.getSharedPreferences("au.com.codeka.weather",
         Context.MODE_PRIVATE);
 
-    if (mLocationManager == null) {
-      mLocationManager = (LocationManager) context.getSystemService(
+    if (locationManager == null) {
+      locationManager = (LocationManager) context.getSystemService(
           Context.LOCATION_SERVICE);
     }
 
     getLocation(context, prefs, force, new LocationFetchedListener() {
       @Override
       public void onLocationFetched(Location loc) {
-        Log.i(TAG, "Got location: "+loc.getLatitude()+","+loc.getLongitude());
+        Log.i(TAG, "Got location: " + loc.getLatitude() + "," + loc.getLongitude());
         ActivityLog.current().setLocation(loc.getLatitude(), loc.getLongitude());
         ActivityLog.current().log("Got location fix: " + loc.getLatitude() + "," + loc.getLongitude());
 
@@ -50,7 +54,7 @@ public class WeatherManager {
           queryWeather(context, loc, prefs);
         } else {
           ActivityLog.current().log("No weather query required.");
-          mQueryInProgress = false;
+          queryInProgress = false;
         }
       }
     });
@@ -64,7 +68,7 @@ public class WeatherManager {
 
   /** Gets your current location as a lat/long */
   private void getLocation(Context context, SharedPreferences prefs, boolean force,
-      final LocationFetchedListener locationFetcherListener) {
+                           final LocationFetchedListener locationFetcherListener) {
     long now = System.currentTimeMillis();
 
     // we'll use the PASSIVE_PROVIDER most of the time, but occasionally use GPS_PROVIDER for
@@ -81,23 +85,39 @@ public class WeatherManager {
     Criteria criteria = new Criteria();
     String provider = LocationManager.PASSIVE_PROVIDER;
     if (doGpsRequest) {
-      provider = mLocationManager.getBestProvider(criteria, true);
+      provider = locationManager.getBestProvider(criteria, true);
       if (provider == null) {
         // fallback to network provider if we can't get GPS provider
         provider = LocationManager.NETWORK_PROVIDER;
       }
     }
 
+    boolean haveFineLocation = ActivityCompat.checkSelfPermission(context,
+        Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    boolean haveCoarseLocation = ActivityCompat.checkSelfPermission(context,
+        Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    if (!haveCoarseLocation || !haveFineLocation) {
+      // We'll only do this if we're called in the context of an activity. If it's the alarm
+      // receiver calling us, then don't bother.
+      if (context instanceof Activity) {
+        ActivityCompat.requestPermissions((Activity) context, new String[]{
+            Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION
+        }, 1);
+      }
+      Log.w(TAG, "No location permission, cannot get current location.");
+      return;
+    }
+
     final MyLocationListener myLocationListener = new MyLocationListener(
-        mLocationManager.getLastKnownLocation(provider));
+        locationManager.getLastKnownLocation(provider));
     ActivityLog.current().log("Using location provider: " + provider);
     if (provider.equals(LocationManager.GPS_PROVIDER)) {
       // if we're getting GPS location, also listen for network locations in case we don't have
       // GPS lock and we're inside or whatever.
-      mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0,
+      locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0,
           myLocationListener);
     }
-    mLocationManager.requestLocationUpdates(provider, 0, 0, myLocationListener);
+    locationManager.requestLocationUpdates(provider, 0, 0, myLocationListener);
 
     // check back in 10 seconds for the best location we've received in that time
     ActivityLog.current().log("Waiting for location fix.");
@@ -105,7 +125,13 @@ public class WeatherManager {
       @Override
       public void run() {
         Location loc = myLocationListener.getBestLocation();
-        mLocationManager.removeUpdates(myLocationListener);
+        try {
+          locationManager.removeUpdates(myLocationListener);
+        } catch (SecurityException e) {
+          // Should never happen because we check for the permission above, but if we do get this,
+          // just ignore it.
+          return;
+        }
 
         locationFetcherListener.onLocationFetched(loc);
       }
@@ -174,7 +200,7 @@ public class WeatherManager {
         }
 
         WeatherWidgetProvider.notifyRefresh(context);
-        mQueryInProgress = false;
+        queryInProgress = false;
       }
     });
     t.start();
@@ -186,20 +212,20 @@ public class WeatherManager {
 
   private class MyLocationListener implements LocationListener {
     private static final int TWO_MINUTES = 1000 * 60 * 2;
-    private Location mLastKnownLocation;
+    private Location lastKnownLocation;
 
     public MyLocationListener(Location lastKnownLocation) {
-      mLastKnownLocation = lastKnownLocation;
+      this.lastKnownLocation = lastKnownLocation;
     }
 
     public Location getBestLocation() {
-      return mLastKnownLocation;
+      return lastKnownLocation;
     }
 
     @Override
     public void onLocationChanged(Location location) {
-      if (isBetterLocation(location, mLastKnownLocation)) {
-        mLastKnownLocation = location;
+      if (isBetterLocation(location, lastKnownLocation)) {
+        lastKnownLocation = location;
       }
     }
 

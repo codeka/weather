@@ -23,7 +23,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class WeatherActivity extends Activity {
-  private ActivityLogEntryAdapter mActivityLogEntryAdapter;
+  private ActivityLogEntryAdapter activityLogEntryAdapter;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -31,8 +31,8 @@ public class WeatherActivity extends Activity {
     setContentView(R.layout.weather_activity);
 
     ListView activityLog = (ListView) findViewById(R.id.activity_log);
-    mActivityLogEntryAdapter = new ActivityLogEntryAdapter();
-    activityLog.setAdapter(mActivityLogEntryAdapter);
+    activityLogEntryAdapter = new ActivityLogEntryAdapter();
+    activityLog.setAdapter(activityLogEntryAdapter);
   }
 
   @Override
@@ -40,7 +40,7 @@ public class WeatherActivity extends Activity {
     super.onResume();
 
     List<ActivityLog.Entry> logEntries = ActivityLog.load(this);
-    mActivityLogEntryAdapter.setEntries(logEntries);
+    activityLogEntryAdapter.setEntries(logEntries);
   }
 
   @Override
@@ -73,23 +73,23 @@ public class WeatherActivity extends Activity {
   }
 
   private class ActivityLogEntryAdapter extends BaseAdapter {
-    List<ActivityLog.Entry> mEntries;
+    List<ActivityLog.Entry> entries;
 
-    private SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS",
-        Locale.ENGLISH);
+    private final SimpleDateFormat DATE_FORMAT =
+        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.ENGLISH);
 
     public ActivityLogEntryAdapter() {
-      mEntries = new ArrayList<ActivityLog.Entry>();
+      entries = new ArrayList<ActivityLog.Entry>();
     }
 
     public void setEntries(List<ActivityLog.Entry> entries) {
-      mEntries = entries;
+      this.entries = entries;
       notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
-      return mEntries.size();
+      return entries.size();
     }
 
     @Override
@@ -99,7 +99,7 @@ public class WeatherActivity extends Activity {
 
     @Override
     public Object getItem(int position) {
-      return mEntries.get(position);
+      return entries.get(position);
     }
 
     @Override
@@ -115,7 +115,7 @@ public class WeatherActivity extends Activity {
         view = inflater.inflate(R.layout.activity_log_row, parent, false);
       }
 
-      ActivityLog.Entry entry = mEntries.get(position);
+      ActivityLog.Entry entry = entries.get(position);
 
       StringBuilder logs = new StringBuilder();
       if (entry.getLogs() != null) {
@@ -126,7 +126,7 @@ public class WeatherActivity extends Activity {
         }
       }
 
-      ((TextView) view.findViewById(R.id.timestamp)).setText(mDateFormat.format(new Date(entry.getTimestamp())));
+      ((TextView) view.findViewById(R.id.timestamp)).setText(DATE_FORMAT.format(new Date(entry.getTimestamp())));
       if (entry.hasLocation()) {
         view.findViewById(R.id.location).setVisibility(View.VISIBLE);
         ((TextView) view.findViewById(R.id.location)).setText(Html.fromHtml(entry.getMapLink()));

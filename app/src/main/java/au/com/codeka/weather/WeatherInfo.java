@@ -23,38 +23,38 @@ import android.util.Log;
 public class WeatherInfo {
   private static final String TAG = WeatherInfo.class.getSimpleName();
 
-  private double mLat;
-  private double mLng;
+  private double lat;
+  private double lng;
 
-  private GeocodeInfo mGeocodeInfo;
-  private OpenWeatherMapInfo mWeatherInfo;
+  private GeocodeInfo geocodeInfo;
+  private OpenWeatherMapInfo weatherInfo;
 
   public double getLat() {
-    return mLat;
+    return lat;
   }
 
   public double getLng() {
-    return mLng;
+    return lng;
   }
 
   public GeocodeInfo getGeocodeInfo() {
-    return mGeocodeInfo;
+    return geocodeInfo;
   }
 
   public OpenWeatherMapInfo getWeather() {
-    return mWeatherInfo;
+    return weatherInfo;
   }
 
   public void save(SharedPreferences.Editor editor) {
     editor.putBoolean("Weather.Exists", true);
-    editor.putFloat("Weather.Lat", (float) mLat);
-    editor.putFloat("Weather.Lng", (float) mLng);
+    editor.putFloat("Weather.Lat", (float) lat);
+    editor.putFloat("Weather.Lng", (float) lng);
 
     Gson gson = new GsonBuilder()
                       .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                       .create();
-    editor.putString("Weather.Geocode", gson.toJson(mGeocodeInfo));
-    editor.putString("Weather.Weather", gson.toJson(mWeatherInfo));
+    editor.putString("Weather.Geocode", gson.toJson(geocodeInfo));
+    editor.putString("Weather.Weather", gson.toJson(weatherInfo));
   }
 
   public static class Builder {
@@ -64,22 +64,22 @@ public class WeatherInfo {
       }
 
       WeatherInfo weatherInfo = new WeatherInfo();
-      weatherInfo.mLat = prefs.getFloat("Weather.Lat", 0.0f);
-      weatherInfo.mLng = prefs.getFloat("Weather.Lng", 0.0f);
+      weatherInfo.lat = prefs.getFloat("Weather.Lat", 0.0f);
+      weatherInfo.lng = prefs.getFloat("Weather.Lng", 0.0f);
 
       Gson gson = new GsonBuilder()
                         .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                         .create();
-      weatherInfo.mGeocodeInfo = gson.fromJson(prefs.getString("Weather.Geocode", ""), GeocodeInfo.class);
-      weatherInfo.mWeatherInfo = gson.fromJson(prefs.getString("Weather.Weather", ""), OpenWeatherMapInfo.class);
+      weatherInfo.geocodeInfo = gson.fromJson(prefs.getString("Weather.Geocode", ""), GeocodeInfo.class);
+      weatherInfo.weatherInfo = gson.fromJson(prefs.getString("Weather.Weather", ""), OpenWeatherMapInfo.class);
 
       return weatherInfo;
     }
 
     public WeatherInfo fetch(double lat, double lng) {
       WeatherInfo weatherInfo = new WeatherInfo();
-      weatherInfo.mLat = lat;
-      weatherInfo.mLng = lng;
+      weatherInfo.lat = lat;
+      weatherInfo.lng = lng;
 
       Gson gson = new GsonBuilder()
           .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
@@ -92,7 +92,7 @@ public class WeatherInfo {
         URLConnection conn = url.openConnection();
         InputStream ins = new BufferedInputStream(conn.getInputStream());
         JsonReader json = new JsonReader(new InputStreamReader(ins, "UTF-8"));
-        weatherInfo.mGeocodeInfo = gson.fromJson(json, GeocodeInfo.class);
+        weatherInfo.geocodeInfo = gson.fromJson(json, GeocodeInfo.class);
 
         ActivityLog.current().log("Geocoded location: " + weatherInfo.getGeocodeInfo());
       } catch (IOException e) {
@@ -137,7 +137,7 @@ public class WeatherInfo {
         return null;
       }
 
-      weatherInfo.mWeatherInfo = new OpenWeatherMapInfo(currentConditions, forecast);
+      weatherInfo.weatherInfo = new OpenWeatherMapInfo(currentConditions, forecast);
       ActivityLog.current().log("Weather: " + weatherInfo.getWeather());
       Log.d(TAG, "Weather: "+weatherInfo.getWeather());
       return weatherInfo;

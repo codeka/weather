@@ -1,6 +1,7 @@
 package au.com.codeka.weather;
 
 /** POJO object that represents the results of a Google Maps reverse-Geocode. */
+@SuppressWarnings("unused") // a bunch of these, which we can ignore for now.
 public class GeocodeInfo {
   private SingleResult[] results;
   private String status;
