@@ -11,6 +11,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
 /**
  * This is the widget provider which renders the actual widget.
  */
@@ -99,9 +102,21 @@ public class WeatherWidgetProvider extends AppWidgetProvider {
 
     remoteViews.setImageViewResource(R.id.current_icon, currentConditions.getLargeIcon());
 
-    OpenWeatherMapInfo.ForecastEntry tomorrowWeather = weatherInfo.getWeather().getForecast(1);
+    int forecastDay = 1;
+    int hour = new GregorianCalendar().get(Calendar.HOUR_OF_DAY);
+    if (hour < 12) {
+      // still morning, show today's forecast
+      forecastDay = 0;
+      remoteViews.setTextViewText(R.id.tomorrow_text, "Today");
+    } else {
+      forecastDay = 1;
+      remoteViews.setTextViewText(R.id.tomorrow_text, "Tomorrow");
+    }
+    OpenWeatherMapInfo.ForecastEntry forecastWeather =
+        weatherInfo.getWeather().getForecast(forecastDay);
     remoteViews.setTextViewText(R.id.tomorrow_weather, String.format(
-        "%d °C %s", Math.round(tomorrowWeather.getMaxTemp()), tomorrowWeather.getDescription()));
-    remoteViews.setImageViewResource(R.id.tomorrow_icon, tomorrowWeather.getSmallIcon());
+        "%d °C %s", Math.round(forecastWeather.getMaxTemp()), forecastWeather.getDescription()));
+    remoteViews.setImageViewResource(R.id.tomorrow_icon, forecastWeather.getSmallIcon());
+
   }
 }

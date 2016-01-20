@@ -1,8 +1,11 @@
 package au.com.codeka.weather;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 
+import android.util.Log;
 import android.util.SparseArray;
 
 import com.google.gson.annotations.SerializedName;
@@ -76,8 +79,14 @@ public class OpenWeatherMapInfo {
     }
 
     private boolean isNight() {
-      long now = System.currentTimeMillis() / 1000;
-      return (now < sys.sunrise || now > sys.sunset);
+      int hour = new GregorianCalendar().get(Calendar.HOUR_OF_DAY);
+      return hour < 6 || hour > 8;
+
+      // TODO: the below doesn't work due to the fact that we may have a forecast for yesterday
+      // TODO: still apparently?
+//      long now = System.currentTimeMillis() / 1000;
+//      Log.i("OWM", "now=" + now + " sys.sunrise=" + sys.sunrise + " sys.sunset=" + sys.sunset);
+//      return (now < sys.sunrise || now > sys.sunset);
     }
   }
 
