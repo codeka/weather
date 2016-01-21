@@ -94,10 +94,10 @@ public class WeatherInfo {
         JsonReader json = new JsonReader(new InputStreamReader(ins, "UTF-8"));
         weatherInfo.geocodeInfo = gson.fromJson(json, GeocodeInfo.class);
 
-        ActivityLog.current().log("Geocoded location: " + weatherInfo.getGeocodeInfo());
+        DebugLog.current().log("Geocoded location: " + weatherInfo.getGeocodeInfo());
       } catch (IOException e) {
         Log.e(TAG, "Error fetching geocode information.", e);
-        ActivityLog.current().log("Error Fetching Geocode: " + e.getMessage());
+        DebugLog.current().log("Error Fetching Geocode: " + e.getMessage());
         return null;
       }
 
@@ -115,7 +115,7 @@ public class WeatherInfo {
 
       } catch (IOException e) {
         Log.e(TAG, "Error fetching weather information.", e);
-        ActivityLog.current().log("Error Fetching Weather: " + e.getMessage());
+        DebugLog.current().log("Error Fetching Weather: " + e.getMessage());
         return null;
       }
 
@@ -133,12 +133,12 @@ public class WeatherInfo {
 
       } catch (IOException e) {
         Log.e(TAG, "Error fetching weather information.", e);
-        ActivityLog.current().log("Error Fetching Weather: " + e.getMessage());
+        DebugLog.current().log("Error Fetching Weather: " + e.getMessage());
         return null;
       }
 
       weatherInfo.weatherInfo = new OpenWeatherMapInfo(currentConditions, forecast);
-      ActivityLog.current().log("Weather: " + weatherInfo.getWeather());
+      DebugLog.current().log("Weather: " + weatherInfo.getWeather());
       Log.d(TAG, "Weather: "+weatherInfo.getWeather());
       return weatherInfo;
     }

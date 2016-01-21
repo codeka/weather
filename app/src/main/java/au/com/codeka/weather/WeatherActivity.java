@@ -39,7 +39,7 @@ public class WeatherActivity extends Activity {
   public void onResume() {
     super.onResume();
 
-    List<ActivityLog.Entry> logEntries = ActivityLog.load(this);
+    List<DebugLog.Entry> logEntries = DebugLog.load(this);
     activityLogEntryAdapter.setEntries(logEntries);
   }
 
@@ -73,7 +73,7 @@ public class WeatherActivity extends Activity {
   }
 
   private class ActivityLogEntryAdapter extends BaseAdapter {
-    final List<ActivityLog.Entry> entries = new ArrayList<>();
+    final List<DebugLog.Entry> entries = new ArrayList<>();
 
     private final SimpleDateFormat DATE_FORMAT =
         new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.ENGLISH);
@@ -81,7 +81,7 @@ public class WeatherActivity extends Activity {
     public ActivityLogEntryAdapter() {
     }
 
-    public void setEntries(List<ActivityLog.Entry> entries) {
+    public void setEntries(List<DebugLog.Entry> entries) {
       this.entries.clear();
       this.entries.addAll(entries);
       notifyDataSetChanged();
@@ -115,11 +115,11 @@ public class WeatherActivity extends Activity {
         view = inflater.inflate(R.layout.activity_log_row, parent, false);
       }
 
-      ActivityLog.Entry entry = entries.get(position);
+      DebugLog.Entry entry = entries.get(position);
 
       StringBuilder logs = new StringBuilder();
       if (entry.getLogs() != null) {
-        for (ActivityLog.LogEntry log : entry.getLogs()) {
+        for (DebugLog.LogEntry log : entry.getLogs()) {
           logs.append(String.format("%8.2fs %s\n",
               (float) (log.getTimestamp() - entry.getTimestamp()) / 1000.0f,
               log.getMessage()));

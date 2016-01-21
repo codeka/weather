@@ -17,8 +17,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 /** For debugging purposes, we keep a log of everything we do. */
-public class ActivityLog {
-  private static final String TAG = ActivityLog.class.getSimpleName();
+public class DebugLog {
+  private static final String TAG = DebugLog.class.getSimpleName();
   private static EntryBuilder currentEntryBuilder;
 
   public static EntryBuilder current() {

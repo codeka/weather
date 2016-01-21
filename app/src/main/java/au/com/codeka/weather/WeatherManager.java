@@ -46,14 +46,14 @@ public class WeatherManager {
       @Override
       public void onLocationFetched(Location loc) {
         Log.i(TAG, "Got location: " + loc.getLatitude() + "," + loc.getLongitude());
-        ActivityLog.current().setLocation(loc.getLatitude(), loc.getLongitude());
-        ActivityLog.current().log("Got location fix: " + loc.getLatitude() + "," + loc.getLongitude());
+        DebugLog.current().setLocation(loc.getLatitude(), loc.getLongitude());
+        DebugLog.current().log("Got location fix: " + loc.getLatitude() + "," + loc.getLongitude());
 
         boolean needWeatherQuery = force || checkNeedWeatherQuery(loc, prefs);
         if (needWeatherQuery) {
           queryWeather(context, loc, prefs);
         } else {
-          ActivityLog.current().log("No weather query required.");
+          DebugLog.current().log("No weather query required.");
           queryInProgress = false;
         }
       }
@@ -110,7 +110,7 @@ public class WeatherManager {
 
     final MyLocationListener myLocationListener = new MyLocationListener(
         locationManager.getLastKnownLocation(provider));
-    ActivityLog.current().log("Using location provider: " + provider);
+    DebugLog.current().log("Using location provider: " + provider);
     if (provider.equals(LocationManager.GPS_PROVIDER)) {
       // if we're getting GPS location, also listen for network locations in case we don't have
       // GPS lock and we're inside or whatever.
@@ -120,7 +120,7 @@ public class WeatherManager {
     locationManager.requestLocationUpdates(provider, 0, 0, myLocationListener);
 
     // check back in 10 seconds for the best location we've received in that time
-    ActivityLog.current().log("Waiting for location fix.");
+    DebugLog.current().log("Waiting for location fix.");
     new Handler().postDelayed(new Runnable() {
       @Override
       public void run() {
@@ -151,7 +151,7 @@ public class WeatherManager {
   private boolean checkNeedWeatherQuery(Location loc, SharedPreferences prefs) {
     long timeOfLastWeatherQuery = prefs.getLong("TimeOfLastWeatherQuery", 0);
     if (timeOfLastWeatherQuery == 0) {
-      ActivityLog.current().log("No previous weather queries, doing first one.");
+      DebugLog.current().log("No previous weather queries, doing first one.");
       return true;
     }
 
@@ -163,7 +163,7 @@ public class WeatherManager {
       float[] results = new float[1];
       Location.distanceBetween(loc.getLatitude(), loc.getLongitude(), lastQueryLat, lastQueryLng,
           results);
-      ActivityLog.current().log("We've moved " + results[0] + " metres since the last query.");
+      DebugLog.current().log("We've moved " + results[0] + " metres since the last query.");
       if (results[0] > 5000.0f) {
         timeBetweenQueries = MOVING_QUERY_TIME_MS;
       }
@@ -171,7 +171,7 @@ public class WeatherManager {
 
     long timeSinceLastWeatherQuery = System.currentTimeMillis() - timeOfLastWeatherQuery;
     if (timeSinceLastWeatherQuery > timeBetweenQueries) {
-      ActivityLog.current().log(timeSinceLastWeatherQuery + "ms has elapsed since last weather query. Performing new query now.");
+      DebugLog.current().log(timeSinceLastWeatherQuery + "ms has elapsed since last weather query. Performing new query now.");
       return true;
     }
     return false;
@@ -194,7 +194,7 @@ public class WeatherManager {
         }
 
         try {
-          ActivityLog.saveCurrent(context);
+          DebugLog.saveCurrent(context);
         } catch (Exception e) {
           // ignore errors.
         }

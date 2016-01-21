@@ -41,7 +41,7 @@ public class WeatherAlarmReceiver extends BroadcastReceiver {
     nextMinute = nextMinute - (nextMinute % millisPerMinute) + millisPerMinute;
 
     Log.d(TAG, "now="+System.currentTimeMillis()+" nextMinute="+nextMinute);
-    ActivityLog.current().setMillisToNextAlarm(nextMinute - System.currentTimeMillis());
+    DebugLog.current().setMillisToNextAlarm(nextMinute - System.currentTimeMillis());
 
     // we must remember to call schedule() after processing the first intent
     alarmManager.set(AlarmManager.RTC, nextMinute,  pendingIntent);
