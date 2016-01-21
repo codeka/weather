@@ -1,4 +1,4 @@
-package au.com.codeka.weather;
+package au.com.codeka.weather.location;
 
 /** POJO object that represents the results of a Google Maps reverse-Geocode. */
 @SuppressWarnings("unused") // a bunch of these, which we can ignore for now.

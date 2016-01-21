@@ -2,11 +2,19 @@ package au.com.codeka.weather;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.webkit.WebView;
+
+import java.util.ArrayList;
+
+import au.com.codeka.weather.location.GeocodeInfo;
+import au.com.codeka.weather.model.CurrentCondition;
+import au.com.codeka.weather.model.Forecast;
+import au.com.codeka.weather.model.WeatherInfo;
 
 /** Debug activity is used to display the raw JSON we have stored, for debugging. */
 public class DebugActivity extends Activity {
@@ -23,9 +31,12 @@ public class DebugActivity extends Activity {
     sb.append("<html><body><pre>");
     sb.append(String.format("Location: %f, %f\n", weatherInfo.getLat(), weatherInfo.getLng()));
     sb.append("\n----------------------------------------\n\n");
-    sb.append(gson.toJson(weatherInfo.getGeocodeInfo(), GeocodeInfo.class));
+    sb.append(gson.toJson(weatherInfo.getCurrentCondition(), CurrentCondition.class));
     sb.append("\n----------------------------------------\n\n");
-    sb.append(gson.toJson(weatherInfo.getWeather(), OpenWeatherMapInfo.class));
+    sb.append(gson.toJson(weatherInfo.getForecasts(),
+        new TypeToken<ArrayList<Forecast>>() {}.getType()));
+    sb.append("\n----------------------------------------\n\n");
+    sb.append(gson.toJson(weatherInfo.getGeocodeInfo(), GeocodeInfo.class));
     sb.append("</pre></body></html>");
 
     WebView debugInfo = (WebView) findViewById(R.id.debug_info);

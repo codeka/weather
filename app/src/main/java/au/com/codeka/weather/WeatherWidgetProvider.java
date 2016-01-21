@@ -14,6 +14,12 @@ import android.widget.RemoteViews;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import au.com.codeka.weather.location.GeocodeInfo;
+import au.com.codeka.weather.model.CurrentCondition;
+import au.com.codeka.weather.model.Forecast;
+import au.com.codeka.weather.model.WeatherIcon;
+import au.com.codeka.weather.model.WeatherInfo;
+
 /**
  * This is the widget provider which renders the actual widget.
  */
@@ -86,41 +92,43 @@ public class WeatherWidgetProvider extends AppWidgetProvider {
   private void refreshWidget(Context context) {
     SharedPreferences prefs = context.getSharedPreferences("au.com.codeka.weather",
         Context.MODE_PRIVATE);
-    WeatherInfo weatherInfo = new WeatherInfo.Builder().load(prefs);
+    WeatherInfo weatherInfo = WeatherInfo.Builder.load(prefs);
     if (weatherInfo == null) {
       return;
     }
 
-    OpenWeatherMapInfo.CurrentConditions currentConditions =
-        weatherInfo.getWeather().getCurrentConditions();
-    if (currentConditions == null) {
+    CurrentCondition currentCondition = weatherInfo.getCurrentCondition();
+    if (currentCondition == null) {
       // oops!
       return;
     }
     remoteViews.setTextViewText(R.id.weather_temp, String.format("%d °C",
-        (int) Math.round(currentConditions.getTemp())));
-    remoteViews.setTextViewText(R.id.weather_text, currentConditions.getDescription());
+        (int) Math.round(currentCondition.getTemperature())));
+    remoteViews.setTextViewText(R.id.weather_text, currentCondition.getDescription());
 
     GeocodeInfo geocodeInfo = weatherInfo.getGeocodeInfo();
     remoteViews.setTextViewText(R.id.geocode_location, geocodeInfo.getShortName());
 
-    remoteViews.setImageViewResource(R.id.current_icon, currentConditions.getLargeIcon());
-
-    int forecastDay = 1;
+    // a bit hacky...
     int hour = new GregorianCalendar().get(Calendar.HOUR_OF_DAY);
+    boolean isNight = hour < 6 || hour > 20;
+
+    WeatherIcon icon = currentCondition.getIcon();
+    remoteViews.setImageViewResource(R.id.current_icon, icon.getLargeIconId(isNight));
+
+    int offset;
     if (hour < 12) {
       // still morning, show today's forecast
-      forecastDay = 0;
+      offset = 0;
       remoteViews.setTextViewText(R.id.tomorrow_text, "Today");
     } else {
-      forecastDay = 1;
+      offset = 1;
       remoteViews.setTextViewText(R.id.tomorrow_text, "Tomorrow");
     }
-    OpenWeatherMapInfo.ForecastEntry forecastWeather =
-        weatherInfo.getWeather().getForecast(forecastDay);
-    remoteViews.setTextViewText(R.id.tomorrow_weather, String.format(
-        "%d °C %s", Math.round(forecastWeather.getMaxTemp()), forecastWeather.getDescription()));
-    remoteViews.setImageViewResource(R.id.tomorrow_icon, forecastWeather.getSmallIcon());
 
+    Forecast forecast = weatherInfo.getForecasts().get(offset);
+    remoteViews.setTextViewText(R.id.tomorrow_weather, String.format(
+        "%d °C %s", Math.round(forecast.getHighTemperature()), forecast.getShortDescription()));
+    remoteViews.setImageViewResource(R.id.tomorrow_icon, forecast.getIcon().getSmallIconId(isNight));
   }
 }

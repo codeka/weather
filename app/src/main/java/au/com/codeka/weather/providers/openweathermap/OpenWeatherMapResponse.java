@@ -1,4 +1,4 @@
-package au.com.codeka.weather;
+package au.com.codeka.weather.providers.openweathermap;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -10,15 +10,17 @@ import android.util.SparseArray;
 
 import com.google.gson.annotations.SerializedName;
 
+import au.com.codeka.weather.R;
+
 /**
  * Represents the response we receive from openweathermap.org about the various weather conditions.
  */
 @SuppressWarnings("unused") // lots of unused at the moment... don't really care
-public class OpenWeatherMapInfo {
+public class OpenWeatherMapResponse {
   private CurrentConditions currentConditions;
   private Forecast forecast;
 
-  public OpenWeatherMapInfo(CurrentConditions currentConditions, Forecast forecast) {
+  public OpenWeatherMapResponse(CurrentConditions currentConditions, Forecast forecast) {
     this.currentConditions = currentConditions;
     this.forecast = forecast;
   }
