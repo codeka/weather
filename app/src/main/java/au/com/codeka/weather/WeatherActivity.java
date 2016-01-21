@@ -73,17 +73,17 @@ public class WeatherActivity extends Activity {
   }
 
   private class ActivityLogEntryAdapter extends BaseAdapter {
-    List<ActivityLog.Entry> entries;
+    final List<ActivityLog.Entry> entries = new ArrayList<>();
 
     private final SimpleDateFormat DATE_FORMAT =
         new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.ENGLISH);
 
     public ActivityLogEntryAdapter() {
-      entries = new ArrayList<ActivityLog.Entry>();
     }
 
     public void setEntries(List<ActivityLog.Entry> entries) {
-      this.entries = entries;
+      this.entries.clear();
+      this.entries.addAll(entries);
       notifyDataSetChanged();
     }
 

@@ -68,6 +68,10 @@ public class ActivityLog {
         if (entry == null) {
           throw new Exception("entry was null!");
         }
+        if (entry.getLogs() == null) {
+          Log.i(TAG, "Log " + f.getName() + " was empty, not loading.");
+          continue;
+        }
         entries.add(entry);
       } catch (Exception e) {
         Log.e(TAG, "Error loading entry.", e);

@@ -93,6 +93,10 @@ public class WeatherWidgetProvider extends AppWidgetProvider {
 
     OpenWeatherMapInfo.CurrentConditions currentConditions =
         weatherInfo.getWeather().getCurrentConditions();
+    if (currentConditions == null) {
+      // oops!
+      return;
+    }
     remoteViews.setTextViewText(R.id.weather_temp, String.format("%d °C",
         (int) Math.round(currentConditions.getTemp())));
     remoteViews.setTextViewText(R.id.weather_text, currentConditions.getDescription());
