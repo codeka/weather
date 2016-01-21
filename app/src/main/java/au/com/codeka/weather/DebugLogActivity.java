@@ -1,11 +1,5 @@
 package au.com.codeka.weather;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -22,56 +16,35 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class WeatherActivity extends Activity {
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+/**
+ * An activity for displaying the debug logs.
+ */
+public class DebugLogActivity extends Activity {
   private ActivityLogEntryAdapter activityLogEntryAdapter;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.weather_activity);
+    getActionBar().setDisplayHomeAsUpEnabled(true);
+    setContentView(R.layout.debug_log_activity);
 
-
+    ListView activityLog = (ListView) findViewById(R.id.activity_log);
+    activityLogEntryAdapter = new ActivityLogEntryAdapter();
+    activityLog.setAdapter(activityLogEntryAdapter);
   }
 
   @Override
   public void onResume() {
     super.onResume();
-  }
 
-  @Override
-  public boolean onCreateOptionsMenu(Menu menu) {
-    MenuInflater inflater = getMenuInflater();
-    inflater.inflate(R.menu.weather_activity_actions, menu);
-    return super.onCreateOptionsMenu(menu);
-  }
-
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    switch (item.getItemId()) {
-    case R.id.refresh:
-      refreshWeather();
-      return true;
-    case R.id.debug:
-      showDebugActivity();
-      return true;
-    case R.id.activity_log:
-      showDebugLogActivity();
-      return true;
-    default:
-      return super.onOptionsItemSelected(item);
-    }
-  }
-
-  private void refreshWeather() {
-    WeatherManager.i.refreshWeather(this, true);
-  }
-
-  private void showDebugActivity() {
-    startActivity(new Intent(this, DebugActivity.class));
-  }
-
-  private void showDebugLogActivity() {
-    startActivity(new Intent(this, DebugLogActivity.class));
+    List<DebugLog.Entry> logEntries = DebugLog.load(this);
+    activityLogEntryAdapter.setEntries(logEntries);
   }
 
   private class ActivityLogEntryAdapter extends BaseAdapter {
@@ -149,3 +122,4 @@ public class WeatherActivity extends Activity {
     }
   }
 }
+

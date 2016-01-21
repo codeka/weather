@@ -34,7 +34,12 @@
               android:label="@string/debug_activity_title"
               android:parentActivityName=".WeatherActivity">
     </activity>
-    
+
+    <activity android:name=".DebugLogActivity"
+              android:label="@string/debug_activity_title"
+              android:parentActivityName=".WeatherActivity">
+    </activity>
+
     <receiver android:process=":remote"
               android:name=".WeatherAlarmReceiver" />
 

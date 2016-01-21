@@ -4,6 +4,10 @@
           android:icon="@drawable/ic_menu_refresh"
           android:title="Refresh"
           android:showAsAction="ifRoom"  />
+    <item android:id="@+id/activity_log"
+          android:icon="@drawable/ic_menu_settings_holo_light"
+          android:title="Activity log"
+          android:showAsAction="never" />
     <item android:id="@+id/debug"
           android:icon="@drawable/ic_menu_settings_holo_light"
           android:title="Debug"

@@ -2,4 +2,5 @@
 <resources>
   <string name="app_name">Weather</string>
   <string name="debug_activity_title">Debug</string>
+  <string name="debug_log_activity_title">Activity log</string>
 </resources>
