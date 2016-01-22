@@ -35,7 +35,8 @@ public class WeatherWidgetProvider extends AppWidgetProvider {
    */
   public static void notifyRefresh(Context context) {
     Intent i = new Intent(context, WeatherWidgetProvider.class);
-    i.setAction(WeatherWidgetProvider.CUSTOM_REFRESH_ACTION);
+    i.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+    i.putExtra(CUSTOM_REFRESH_ACTION, 1);
     context.sendBroadcast(i);
   }
 
@@ -45,11 +46,13 @@ public class WeatherWidgetProvider extends AppWidgetProvider {
    */
   @Override
   public void onReceive(Context context, Intent intent) {
+    WeatherAlarmReceiver.schedule(context);
+
     try {
       remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget);
       componentName = new ComponentName(context, WeatherWidgetProvider.class);
 
-      if (intent.getAction().equals(CUSTOM_REFRESH_ACTION)) {
+      if (intent.getIntExtra(CUSTOM_REFRESH_ACTION, 0) == 1) {
         refreshWidget(context);
       } else {
         super.onReceive(context, intent);
@@ -68,6 +71,7 @@ public class WeatherWidgetProvider extends AppWidgetProvider {
   public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager,
       int appWidgetId, Bundle newOptions) {
 
+    WeatherAlarmReceiver.schedule(context);
     refreshWidget(context);
   }
 
@@ -129,6 +133,6 @@ public class WeatherWidgetProvider extends AppWidgetProvider {
     Forecast forecast = weatherInfo.getForecasts().get(offset);
     remoteViews.setTextViewText(R.id.tomorrow_weather, String.format(
         "%d °C %s", Math.round(forecast.getHighTemperature()), forecast.getShortDescription()));
-    remoteViews.setImageViewResource(R.id.tomorrow_icon, forecast.getIcon().getSmallIconId(isNight));
+    remoteViews.setImageViewResource(R.id.tomorrow_icon, forecast.getIcon().getSmallIconId(false));
   }
 }

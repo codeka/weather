@@ -103,6 +103,8 @@ public class WundergroundProvider extends Provider {
       case "mostlysunny":
         return WeatherIcon.PARTLY_CLOUDY;
       case "partlysunny":
+        return WeatherIcon.MOSTLY_CLOUDY;
+      case "partlycloudy":
         return WeatherIcon.PARTLY_CLOUDY;
       case "sleet":
         return WeatherIcon.SLEET;
