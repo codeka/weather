@@ -4,5 +4,5 @@
     android:id="@+id/header"
     style="@style/DetailsHeaderText"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/materialviewpager_logoHeight"
     android:text="" />

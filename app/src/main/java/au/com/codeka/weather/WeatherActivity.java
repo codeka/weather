@@ -1,52 +1,35 @@
 package au.com.codeka.weather;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.github.florent37.materialviewpager.MaterialViewPager;
 import com.github.florent37.materialviewpager.header.HeaderDesign;
 
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
 import au.com.codeka.weather.model.CurrentCondition;
 import au.com.codeka.weather.model.WeatherInfo;
-import au.com.codeka.weather.providers.openweathermap.OpenWeatherMapResponse;
 
 public class WeatherActivity extends AppCompatActivity {
   private static final String TAG = "codeka.weather";
@@ -161,9 +144,12 @@ public class WeatherActivity extends AppCompatActivity {
 
     @Override
     public CharSequence getPageTitle(int position) {
+      WeatherInfo weatherInfo = WeatherManager.i.getCurrentWeather(WeatherActivity.this);
+      CurrentCondition currentCondition = weatherInfo.getCurrentCondition();
+
       switch (position) {
         case 0:
-          return "One";
+          return weatherInfo.getGeocodeInfo().getShortName();
         case 1:
           return "Two";
         case 2:
@@ -178,20 +164,9 @@ public class WeatherActivity extends AppCompatActivity {
     public HeaderDesign getHeaderDesign(int page) {
       WeatherInfo weatherInfo = WeatherManager.i.getCurrentWeather(WeatherActivity.this);
 
-      Bitmap bitmap;
-      try {
-        bitmap = BitmapFactory.decodeStream(getAssets().open("partly-cloudy.jpg"));
-      } catch (IOException e) {
-        Log.e(TAG, "Should never happen!", e);
-        return null;
-      }
-
-      // TODO: don't do this on a UI thread
-      int color = Color.BLACK;
-      Palette.Swatch swatch = Palette.from(bitmap).generate().getVibrantSwatch();
-      if (swatch != null) {
-        color = swatch.getRgb();
-      }
+      // a bit hacky...
+      int hour = new GregorianCalendar().get(Calendar.HOUR_OF_DAY);
+      boolean isNight = hour < 6 || hour > 20;
 
       switch (page) {
         case 0:
@@ -200,6 +175,23 @@ public class WeatherActivity extends AppCompatActivity {
               "%d °C %s",
               Math.round(currentCondition.getTemperature()),
               currentCondition.getDescription()));
+
+          String assetName = currentCondition.getIcon().getHeaderAssetName(isNight);
+          Bitmap bitmap;
+          try {
+            bitmap = BitmapFactory.decodeStream(getAssets().open(assetName));
+          } catch (IOException e) {
+            Log.e(TAG, "Should never happen!", e);
+            return null;
+          }
+
+          // TODO: don't do this on a UI thread
+          int color = Color.BLACK;
+          Palette.Swatch swatch = Palette.from(bitmap).generate().getVibrantSwatch();
+          if (swatch != null) {
+            color = swatch.getRgb();
+          }
+
           return HeaderDesign.fromColorAndDrawable(
               color, new BitmapDrawable(getResources(), bitmap));
         case 1:

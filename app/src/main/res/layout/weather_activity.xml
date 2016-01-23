@@ -16,6 +16,7 @@
     app:viewpager_headerHeight="150dp"
     app:viewpager_headerAlpha="1.0"
     app:viewpager_hideLogoWithFade="false"
+    app:viewpager_pagerTitleStrip="@layout/weather_details_tabs"
     app:viewpager_hideToolbarAndTitle="true"
     app:viewpager_enableToolbarElevation="true"
     app:viewpager_parallaxHeaderFactor="1.5"
