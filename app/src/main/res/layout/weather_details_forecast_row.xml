@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+  <TextView
+      android:id="@+id/forecast_day"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentTop="true"
+      android:layout_alignParentStart="true"
+      android:textSize="20sp"
+      android:textStyle="bold"
+      android:text="Tomorrow" />
+
+  <ImageView
+      android:id="@+id/forecast_icon"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/forecast_day"
+      android:layout_alignParentStart="true"
+      android:src="@drawable/weather_clear" />
+
+  <TextView
+      android:id="@+id/forecast_temp_high"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignTop="@id/forecast_icon"
+      android:layout_toEndOf="@id/forecast_icon"
+      android:layout_marginStart="8dp"
+      android:textColor="#940808"
+      android:textSize="30sp"
+      android:textStyle="bold"
+      android:text="23 °C" />
+  <TextView
+      android:id="@+id/forecast_temp_separator"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignBaseline="@id/forecast_temp_high"
+      android:layout_toEndOf="@id/forecast_temp_high"
+      android:layout_marginStart="8dp"
+      android:textSize="30sp"
+      android:textStyle="bold"
+      android:text="•" />
+  <TextView
+      android:id="@+id/forecast_temp_low"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignBaseline="@id/forecast_temp_high"
+      android:layout_toEndOf="@id/forecast_temp_separator"
+      android:layout_marginStart="8dp"
+      android:textColor="#165eb7"
+      android:textSize="26sp"
+      android:textStyle="bold"
+      android:text="23 °C" />
+
+  <TextView
+      android:id="@+id/forecast_description"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentStart="true"
+      android:layout_marginStart="8dp"
+      android:layout_below="@id/forecast_icon"
+      android:text="Blah blah blah, yada yada yada, blah blah blah" />
+
+</RelativeLayout>

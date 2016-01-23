@@ -15,12 +15,15 @@ import com.github.ksoichiro.android.observablescrollview.ObservableScrollView;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.Map;
 
 import au.com.codeka.weather.model.CurrentCondition;
+import au.com.codeka.weather.model.Forecast;
 import au.com.codeka.weather.model.WeatherInfo;
 
 /**
- * Created by deanh on 23/01/2016.
+ * Fragment which actually displays the details about the weather.
  */
 public class WeatherDetailsFragment extends Fragment {
   private ObservableScrollView scrollView;
@@ -60,6 +63,32 @@ public class WeatherDetailsFragment extends Fragment {
         String.format("%dmm last hour, %dmm today",
             Math.round(currentCondition.getPrecipitationLastHour()),
             Math.round(currentCondition.getPrecipitationToday())));
+
+    for (Forecast forecast : weatherInfo.getForecasts()) {
+      CardLinearLayout forecastParent =
+          (CardLinearLayout) rootView.findViewById(R.id.weather_cards);
+      View forecastView = inflater.inflate(R.layout.weather_details_forecast_row, forecastParent, false);
+
+      String day = "Today";
+      if (forecast.getOffset() == 1) {
+        day = "Tomorrow";
+      } else if (forecast.getOffset() > 1) {
+        Calendar cal = new GregorianCalendar();
+        cal.add(Calendar.DAY_OF_YEAR, forecast.getOffset());
+        day = cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US);
+      }
+      ((TextView) forecastView.findViewById(R.id.forecast_day)).setText(day);
+      ((TextView) forecastView.findViewById(R.id.forecast_description)).setText(
+          forecast.getDescription());
+      ((TextView) forecastView.findViewById(R.id.forecast_temp_high)).setText(
+          String.format("%d°C", Math.round(forecast.getHighTemperature())));
+      ((TextView) forecastView.findViewById(R.id.forecast_temp_low)).setText(
+          String.format("%d°C", Math.round(forecast.getLowTemperature())));
+      ((ImageView) forecastView.findViewById(R.id.forecast_icon)).setImageResource(
+          forecast.getIcon().getLargeIconId(false));
+
+      forecastParent.addView(forecastView);
+    }
 
     return rootView;
   }
