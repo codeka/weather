@@ -9,46 +9,46 @@ public enum WeatherIcon {
   STORM(
       R.drawable.weather_storm,
       R.drawable.weather_storm_small,
-      "partly-cloudy.jpg"),
+      "storm.jpg"),
   LIGHT_RAIN(
       R.drawable.weather_lightrain,
       R.drawable.weather_lightrain_small,
-      "partly-cloudy.jpg"),
+      "light-rain.jpg"),
   MEDIUM_RAIN(
       R.drawable.weather_mediumrain,
       R.drawable.weather_mediumrain_small,
-      "partly-cloudy.jpg"),
+      "heavy-rain.jpg"),
   HEAVY_RAIN(
       R.drawable.weather_heavyrain,
       R.drawable.weather_heavyrain_small,
-      "partly-cloudy.jpg"),
+      "heavy-rain.jpg"),
   SEVERE(
       R.drawable.weather_severe,
       R.drawable.weather_severe_small,
-      "partly-cloudy.jpg"),
+      "severe.jpg"),
   SLEET(
       R.drawable.weather_sleet,
       R.drawable.weather_sleet_small,
-      "partly-cloudy.jpg"),
+      "sleet.jpg"),
   SNOW(
       R.drawable.weather_snow,
       R.drawable.weather_snow_small,
-      "partly-cloudy.jpg"),
+      "snow.jpg"),
   HAZE(
       R.drawable.weather_hazy,
       R.drawable.weather_hazy_small,
-      "partly-cloudy.jpg"),
+      "haze.jpg"),
   FOG(
       R.drawable.weather_fog,
       R.drawable.weather_fog_small,
-      "partly-cloudy.jpg"),
+      "fog.jpg"),
   CLEAR(
       R.drawable.weather_clear,
       R.drawable.weather_clear_small,
-      "partly-cloudy.jpg",
+      "clear.jpg",
       R.drawable.weather_nt_clear,
       R.drawable.weather_nt_clear_small,
-      "partly-cloudy.jpg"),
+      "clear-night.jpg"),
   PARTLY_CLOUDY(
       R.drawable.weather_partlycloudy,
       R.drawable.weather_partlycloudy_small,
@@ -59,14 +59,14 @@ public enum WeatherIcon {
   MOSTLY_CLOUDY(
       R.drawable.weather_mostlycloudy,
       R.drawable.weather_mostlycloudy_small,
-      "partly-cloudy.jpg",
+      "mostly-cloudy.jpg",
       R.drawable.weather_nt_mostlycloudy,
       R.drawable.weather_nt_mostlycloudy_small,
-      "partly-cloudy.jpg"),
+      "mostly-cloudy-night.jpg"),
   CLOUDY(
       R.drawable.weather_cloudy,
       R.drawable.weather_cloudy_small,
-      "partly-cloudy.jpg");
+      "cloudy.jpg");
 
   private int largeIconId;
   private int smallIconId;
