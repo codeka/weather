@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
@@ -25,13 +26,12 @@ import java.util.Locale;
 /**
  * An activity for displaying the debug logs.
  */
-public class DebugLogActivity extends Activity {
+public class DebugLogActivity extends AppCompatActivity {
   private ActivityLogEntryAdapter activityLogEntryAdapter;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    getActionBar().setDisplayHomeAsUpEnabled(true);
     setContentView(R.layout.debug_log_activity);
 
     ListView activityLog = (ListView) findViewById(R.id.activity_log);

@@ -1,7 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent">
 
+  <com.github.florent37.materialviewpager.MaterialViewPager
+    android:id="@+id/view_pager"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:viewpager_logo="@layout/weather_details_header"
+    app:viewpager_logoMarginTop="75dp"
+    app:viewpager_color="@color/colorPrimary"
+    app:viewpager_headerHeight="150dp"
+    app:viewpager_headerAlpha="1.0"
+    app:viewpager_hideLogoWithFade="false"
+    app:viewpager_hideToolbarAndTitle="true"
+    app:viewpager_enableToolbarElevation="true"
+    app:viewpager_parallaxHeaderFactor="1.5"
+    app:viewpager_headerAdditionalHeight="20dp"
+    app:viewpager_displayToolbarWhenSwipe="true"
+    app:viewpager_transparentToolbar="true"
+    app:viewpager_animatedHeaderImage="true"
+    app:viewpager_disableToolbar="false" />
 
-</FrameLayout>
+  <include layout="@layout/drawer" />
+</android.support.v4.widget.DrawerLayout>

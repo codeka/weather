@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.webkit.WebView;
 
@@ -17,11 +18,10 @@ import au.com.codeka.weather.model.Forecast;
 import au.com.codeka.weather.model.WeatherInfo;
 
 /** Debug activity is used to display the raw JSON we have stored, for debugging. */
-public class DebugActivity extends Activity {
+public class DebugActivity extends AppCompatActivity {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    getActionBar().setDisplayHomeAsUpEnabled(true);
     setContentView(R.layout.debug_activity);
 
     WeatherInfo weatherInfo = WeatherManager.i.getCurrentWeather(this);

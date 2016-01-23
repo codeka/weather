@@ -1,5 +1,6 @@
 package au.com.codeka.weather;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,9 +10,27 @@ import java.util.Locale;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,20 +41,66 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class WeatherActivity extends Activity {
-  private ActivityLogEntryAdapter activityLogEntryAdapter;
+import com.github.florent37.materialviewpager.MaterialViewPager;
+import com.github.florent37.materialviewpager.header.HeaderDesign;
+
+import au.com.codeka.weather.model.CurrentCondition;
+import au.com.codeka.weather.model.WeatherInfo;
+import au.com.codeka.weather.providers.openweathermap.OpenWeatherMapResponse;
+
+public class WeatherActivity extends AppCompatActivity {
+  private static final String TAG = "codeka.weather";
+
+  private DrawerLayout drawer;
+  private ActionBarDrawerToggle drawerToggle;
+  private Toolbar toolbar;
+  private MaterialViewPager viewPager;
+  private WeatherPagerAdapter pagerAdapter;
+  private WeatherPagerListener pagerListener;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.weather_activity);
+    setTitle("");
 
+    // Instantiate a ViewPager and a PagerAdapter.
+    viewPager = (MaterialViewPager) findViewById(R.id.view_pager);
+    drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+    toolbar = viewPager.getToolbar();
+    drawerToggle = new ActionBarDrawerToggle(this, drawer, 0, 0);
+
+    setSupportActionBar(toolbar);
+    final ActionBar actionBar = getSupportActionBar();
+    if (actionBar != null) {
+      actionBar.setDisplayHomeAsUpEnabled(true);
+      actionBar.setDisplayShowHomeEnabled(true);
+      actionBar.setDisplayShowTitleEnabled(true);
+      actionBar.setDisplayUseLogoEnabled(false);
+      actionBar.setHomeButtonEnabled(true);
+    }
+
+    drawer.setDrawerListener(drawerToggle);
+
+    pagerAdapter = new WeatherPagerAdapter(getSupportFragmentManager());
+    pagerListener = new WeatherPagerListener();
+    viewPager.getViewPager().setAdapter(pagerAdapter);
+    viewPager.getViewPager().setOffscreenPageLimit(viewPager.getViewPager().getAdapter().getCount());
+    viewPager.setMaterialViewPagerListener(pagerListener);
+    viewPager.getPagerTitleStrip().setViewPager(viewPager.getViewPager());
 
   }
 
   @Override
   public void onResume() {
     super.onResume();
+  }
+
+  @Override
+  protected void onPostCreate(Bundle savedInstanceState) {
+    super.onPostCreate(savedInstanceState);
+    drawerToggle.syncState();
   }
 
   @Override
@@ -58,7 +123,8 @@ public class WeatherActivity extends Activity {
       showDebugLogActivity();
       return true;
     default:
-      return super.onOptionsItemSelected(item);
+      return drawerToggle.onOptionsItemSelected(item) ||
+          super.onOptionsItemSelected(item);
     }
   }
 
@@ -74,78 +140,81 @@ public class WeatherActivity extends Activity {
     startActivity(new Intent(this, DebugLogActivity.class));
   }
 
-  private class ActivityLogEntryAdapter extends BaseAdapter {
-    final List<DebugLog.Entry> entries = new ArrayList<>();
-
-    private final SimpleDateFormat DATE_FORMAT =
-        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.ENGLISH);
-
-    public ActivityLogEntryAdapter() {
+  /**
+   * A simple pager adapter that represents 5 WeatherDetailsFragment objects, in
+   * sequence.
+   */
+  private class WeatherPagerAdapter extends FragmentStatePagerAdapter {
+    public WeatherPagerAdapter(FragmentManager fm) {
+      super(fm);
     }
 
-    public void setEntries(List<DebugLog.Entry> entries) {
-      this.entries.clear();
-      this.entries.addAll(entries);
-      notifyDataSetChanged();
+    @Override
+    public Fragment getItem(int position) {
+      return new WeatherDetailsFragment();
     }
 
     @Override
     public int getCount() {
-      return entries.size();
+      return 3;
     }
 
     @Override
-    public boolean isEnabled(int position) {
-      return false;
+    public CharSequence getPageTitle(int position) {
+      switch (position) {
+        case 0:
+          return "One";
+        case 1:
+          return "Two";
+        case 2:
+          return "Three";
+      }
+      return "";
     }
+  }
 
+  private class WeatherPagerListener implements MaterialViewPager.Listener {
     @Override
-    public Object getItem(int position) {
-      return entries.get(position);
-    }
+    public HeaderDesign getHeaderDesign(int page) {
+      WeatherInfo weatherInfo = WeatherManager.i.getCurrentWeather(WeatherActivity.this);
 
-    @Override
-    public long getItemId(int position) {
-      return position;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-      View view = convertView;
-      if (view == null) {
-        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        view = inflater.inflate(R.layout.activity_log_row, parent, false);
+      Bitmap bitmap;
+      try {
+        bitmap = BitmapFactory.decodeStream(getAssets().open("partly-cloudy.jpg"));
+      } catch (IOException e) {
+        Log.e(TAG, "Should never happen!", e);
+        return null;
       }
 
-      DebugLog.Entry entry = entries.get(position);
-
-      StringBuilder logs = new StringBuilder();
-      if (entry.getLogs() != null) {
-        for (DebugLog.LogEntry log : entry.getLogs()) {
-          logs.append(String.format("%8.2fs %s\n",
-              (float) (log.getTimestamp() - entry.getTimestamp()) / 1000.0f,
-              log.getMessage()));
-        }
+      // TODO: don't do this on a UI thread
+      int color = Color.BLACK;
+      Palette.Swatch swatch = Palette.from(bitmap).generate().getVibrantSwatch();
+      if (swatch != null) {
+        color = swatch.getRgb();
       }
 
-      ((TextView) view.findViewById(R.id.timestamp)).setText(DATE_FORMAT.format(new Date(entry.getTimestamp())));
-      if (entry.hasLocation()) {
-        view.findViewById(R.id.location).setVisibility(View.VISIBLE);
-        ((TextView) view.findViewById(R.id.location)).setText(Html.fromHtml(entry.getMapLink()));
-        ((TextView) view.findViewById(R.id.location)).setMovementMethod(LinkMovementMethod.getInstance());
-      } else {
-        view.findViewById(R.id.location).setVisibility(View.GONE);
-      }
-      ((TextView) view.findViewById(R.id.logs)).setText(logs.toString());
-      if (entry.getMillisToNextAlarm() == 0) {
-        view.findViewById(R.id.next_timestamp).setVisibility(View.GONE);
-      } else {
-        view.findViewById(R.id.next_timestamp).setVisibility(View.VISIBLE);
-        ((TextView) view.findViewById(R.id.next_timestamp)).setText(String.format("%.1fs",
-            (float) entry.getMillisToNextAlarm() / 1000.0f));
+      switch (page) {
+        case 0:
+          CurrentCondition currentCondition = weatherInfo.getCurrentCondition();
+          ((TextView) viewPager.findViewById(R.id.header)).setText(String.format(
+              "%d °C %s",
+              Math.round(currentCondition.getTemperature()),
+              currentCondition.getDescription()));
+          return HeaderDesign.fromColorAndDrawable(
+              color, new BitmapDrawable(getResources(), bitmap));
+        case 1:
+//          return HeaderDesign.fromColorResAndUrl(
+//              R.color.blue,
+//              "http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2014/06/wallpaper_51.jpg");
+        case 2:
+//          return HeaderDesign.fromColorResAndUrl(
+//              R.color.cyan,
+//              "http://www.droid-life.com/wp-content/uploads/2014/10/lollipop-wallpapers10.jpg");
       }
 
-      return view;
+      //execute others actions if needed (ex : modify your header logo)
+
+      return null;
     }
   }
 }
