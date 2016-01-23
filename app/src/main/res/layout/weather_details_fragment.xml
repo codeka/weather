@@ -13,11 +13,70 @@
 
     <include layout="@layout/material_view_pager_placeholder"/>
 
-    <TextView
+    <RelativeLayout
         style="@style/Card"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Hello World"/>
+        android:layout_height="match_parent">
+      <ImageView
+          android:id="@+id/current_icon"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignParentTop="true"
+          android:layout_alignParentStart="true"
+          android:src="@drawable/weather_clear" />
+      <TextView
+          android:id="@+id/current_temp"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_toEndOf="@id/current_icon"
+          android:layout_marginStart="8dp"
+          android:textSize="30sp"
+          android:textStyle="bold"
+          android:text="23 °C"/>
+      <TextView
+          android:id="@+id/current_description"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_toEndOf="@id/current_temp"
+          android:layout_marginStart="8dp"
+          android:layout_alignBaseline="@id/current_temp"
+          android:textSize="24sp"
+          android:text="Clear"/>
+      <TextView
+          android:id="@+id/observation_location"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_toEndOf="@id/current_icon"
+          android:layout_below="@id/current_temp"
+          android:layout_marginStart="8dp"
+          android:text="at Killara, NSW"/>
+      <TextView
+          android:id="@+id/observation_time"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_toEndOf="@id/current_icon"
+          android:layout_below="@id/observation_location"
+          android:layout_marginStart="8dp"
+          android:text="35 minutes ago"/>
+      <TextView
+          android:id="@+id/extra_info_1"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_toEndOf="@id/current_icon"
+          android:layout_below="@id/observation_time"
+          android:layout_marginStart="8dp"
+          android:layout_marginTop="16dp"
+          android:text="Feels like 24°C, 76% rel. humidity"/>
+      <TextView
+          android:id="@+id/extra_info_2"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_toEndOf="@id/current_icon"
+          android:layout_below="@id/extra_info_1"
+          android:layout_marginStart="8dp"
+          android:text="12mm last hour, 24mm today"/>
+
+    </RelativeLayout>
 
     <TextView
         style="@style/Card"
