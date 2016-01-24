@@ -152,6 +152,9 @@ public class WeatherMapFragment extends Fragment {
       if (overlayFrame >= overlayBitmaps.size()) {
         overlayFrame = 0;
       }
+
+      // replace the existing callback (if there is one) with a new one.
+      handler.removeCallbacks(updateOverlayFrameRunnable);
       handler.postDelayed(updateOverlayFrameRunnable, 1000);
 
       updateRefreshButtonRunnable.run();
