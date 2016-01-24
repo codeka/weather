@@ -40,6 +40,8 @@ public class WeatherMapFragment extends Fragment {
   private GoogleMap map;
 
   private Handler handler = new Handler();
+  private boolean firstTimeVisible = true;
+  private boolean needsRefresh;
 
   private boolean overlayLoading;
   private GroundOverlay overlay;
@@ -80,11 +82,33 @@ public class WeatherMapFragment extends Fragment {
 
         map = googleMap;
 
-        refreshOverlay();
+        if (needsRefresh) {
+          refreshOverlay();
+        }
+        needsRefresh = false;
       }
     });
 
     return rootView;
+  }
+
+  @Override
+  public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    MaterialViewPagerHelper.registerScrollView(getActivity(), scrollView, null);
+  }
+
+  /**
+   * Called by the framework when we're visible/invisible to the user. The first time we're visible
+   * is when we actually want to start loading the weather overlay.
+   */
+  @Override
+  public void setUserVisibleHint(boolean isVisibleToUser) {
+    super.setUserVisibleHint(isVisibleToUser);
+
+    if (isVisibleToUser && firstTimeVisible) {
+      refreshOverlay();
+      firstTimeVisible = false;
+    }
   }
 
   /**
@@ -92,14 +116,13 @@ public class WeatherMapFragment extends Fragment {
    * Must run on the UI thread.
    */
   private void refreshOverlay() {
+    if (map == null) {
+      needsRefresh = true;
+      return;
+    }
+
     overlayLatLngBounds = map.getProjection().getVisibleRegion().latLngBounds;
-
     new Thread(overlayUpdateRunnable).start();
-  }
-
-  @Override
-  public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-    MaterialViewPagerHelper.registerScrollView(getActivity(), scrollView, null);
   }
 
   private final Runnable overlayUpdateRunnable = new Runnable() {
