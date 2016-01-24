@@ -151,7 +151,6 @@ public class WeatherActivity extends AppCompatActivity {
     @Override
     public CharSequence getPageTitle(int position) {
       WeatherInfo weatherInfo = WeatherManager.i.getCurrentWeather(WeatherActivity.this);
-      CurrentCondition currentCondition = weatherInfo.getCurrentCondition();
 
       switch (position) {
         case 0:

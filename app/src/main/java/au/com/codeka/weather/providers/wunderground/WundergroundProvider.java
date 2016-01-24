@@ -2,13 +2,13 @@ package au.com.codeka.weather.providers.wunderground;
 
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,7 +17,6 @@ import java.net.URLConnection;
 import java.util.Date;
 
 import au.com.codeka.weather.DebugLog;
-import au.com.codeka.weather.location.GeocodeInfo;
 import au.com.codeka.weather.model.CurrentCondition;
 import au.com.codeka.weather.model.Forecast;
 import au.com.codeka.weather.model.WeatherIcon;
@@ -74,6 +73,25 @@ public class WundergroundProvider extends Provider {
     } catch (IOException e) {
       Log.e(TAG, "Error fetching weather information.", e);
       DebugLog.current().log("Error fetching weather: " + e.getMessage());
+    }
+  }
+
+  @Override
+  public InputStream fetchMapOverlay(LatLngBounds latLngBounds, int width, int height) {
+    try {
+      URL url = new URL(String.format("http://api.wunderground.com/api/%s/animatedradar/image.gif?"
+              + "minlat=%f&minlon=%f&maxlat=%f&maxlon=%f&width=%d&height=%d&timelabel=1&"
+              + "timelabel.x=%d&timelabel.y=40&reproj.automerc=1&num=10&delay=50",
+          API_KEY, latLngBounds.southwest.latitude, latLngBounds.southwest.longitude,
+          latLngBounds.northeast.latitude, latLngBounds.northeast.longitude,
+          width, height, width - 120));
+      Log.d(TAG, "Connecting to: " + url);
+      URLConnection conn = url.openConnection();
+      return new BufferedInputStream(conn.getInputStream());
+    } catch (IOException e) {
+      Log.e(TAG, "Error fetching weather information.", e);
+      DebugLog.current().log("Error fetching weather: " + e.getMessage());
+      return null;
     }
   }
 

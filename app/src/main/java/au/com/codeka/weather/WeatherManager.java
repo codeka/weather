@@ -5,6 +5,10 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLngBounds;
+
+import java.io.InputStream;
+
 import au.com.codeka.weather.location.GeocodeInfo;
 import au.com.codeka.weather.location.GeocodeProvider;
 import au.com.codeka.weather.location.LocationProvider;
@@ -56,6 +60,11 @@ public class WeatherManager {
     final SharedPreferences prefs = context.getSharedPreferences("au.com.codeka.weather",
         Context.MODE_PRIVATE);
     return WeatherInfo.Builder.load(prefs);
+  }
+
+  /** Fetches an image to overlay over a map. Must be called on a background thread. */
+  public InputStream fetchMapOverlay(LatLngBounds latLngBounds, int width, int height) {
+    return new WundergroundProvider().fetchMapOverlay(latLngBounds, width, height);
   }
 
   /**
