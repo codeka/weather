@@ -69,7 +69,6 @@ public class WeatherActivity extends AppCompatActivity {
     pagerAdapter = new WeatherPagerAdapter(getSupportFragmentManager());
     pagerListener = new WeatherPagerListener();
     viewPager.getViewPager().setAdapter(pagerAdapter);
-    viewPager.getViewPager().setOffscreenPageLimit(viewPager.getViewPager().getAdapter().getCount());
     viewPager.setMaterialViewPagerListener(pagerListener);
     viewPager.getPagerTitleStrip().setViewPager(viewPager.getViewPager());
 
@@ -134,12 +133,19 @@ public class WeatherActivity extends AppCompatActivity {
 
     @Override
     public Fragment getItem(int position) {
-      return new WeatherDetailsFragment();
+      switch (position) {
+        case 0:
+          return new WeatherDetailsFragment();
+        case 1:
+          return new WeatherMapFragment();
+        default:
+          throw new RuntimeException("Unexpected position: " + position);
+      }
     }
 
     @Override
     public int getCount() {
-      return 3;
+      return 2;
     }
 
     @Override
@@ -151,9 +157,7 @@ public class WeatherActivity extends AppCompatActivity {
         case 0:
           return weatherInfo.getGeocodeInfo().getShortName();
         case 1:
-          return "Two";
-        case 2:
-          return "Three";
+          return "Map";
       }
       return "";
     }
@@ -168,43 +172,39 @@ public class WeatherActivity extends AppCompatActivity {
       int hour = new GregorianCalendar().get(Calendar.HOUR_OF_DAY);
       boolean isNight = hour < 6 || hour > 20;
 
+      CurrentCondition currentCondition = weatherInfo.getCurrentCondition();
+
+      String assetName = currentCondition.getIcon().getHeaderAssetName(isNight);
+      Bitmap bitmap;
+      try {
+        bitmap = BitmapFactory.decodeStream(getAssets().open(assetName));
+      } catch (IOException e) {
+        Log.e(TAG, "Should never happen!", e);
+        return null;
+      }
+
+      // TODO: don't do this on a UI thread
+      int color = Color.BLACK;
+      Palette.Swatch swatch = Palette.from(bitmap).generate().getVibrantSwatch();
+      if (swatch != null) {
+        color = swatch.getRgb();
+      }
+
       switch (page) {
         case 0:
-          CurrentCondition currentCondition = weatherInfo.getCurrentCondition();
           ((TextView) viewPager.findViewById(R.id.header)).setText(String.format(
               "%d °C %s",
               Math.round(currentCondition.getTemperature()),
               currentCondition.getDescription()));
 
-          String assetName = currentCondition.getIcon().getHeaderAssetName(isNight);
-          Bitmap bitmap;
-          try {
-            bitmap = BitmapFactory.decodeStream(getAssets().open(assetName));
-          } catch (IOException e) {
-            Log.e(TAG, "Should never happen!", e);
-            return null;
-          }
-
-          // TODO: don't do this on a UI thread
-          int color = Color.BLACK;
-          Palette.Swatch swatch = Palette.from(bitmap).generate().getVibrantSwatch();
-          if (swatch != null) {
-            color = swatch.getRgb();
-          }
-
           return HeaderDesign.fromColorAndDrawable(
               color, new BitmapDrawable(getResources(), bitmap));
         case 1:
-//          return HeaderDesign.fromColorResAndUrl(
-//              R.color.blue,
-//              "http://cdn1.tnwcdn.com/wp-content/blogs.dir/1/files/2014/06/wallpaper_51.jpg");
-        case 2:
-//          return HeaderDesign.fromColorResAndUrl(
-//              R.color.cyan,
-//              "http://www.droid-life.com/wp-content/uploads/2014/10/lollipop-wallpapers10.jpg");
-      }
+          ((TextView) viewPager.findViewById(R.id.header)).setText("Weather Map");
 
-      //execute others actions if needed (ex : modify your header logo)
+          return HeaderDesign.fromColorAndDrawable(
+              color, new BitmapDrawable(getResources(), bitmap));
+      }
 
       return null;
     }
