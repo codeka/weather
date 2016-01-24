@@ -117,7 +117,7 @@ public class GifDecoder {
     int[] dest = new int[width * height];
     // fill in starting image contents based on last image's dispose code
     if (lastDispose > 0) {
-      if (lastDispose == 3) {
+      /*if (lastDispose == 3) {
         // use image before last
         int n = frameCount - 2;
         if (n > 0) {
@@ -143,7 +143,7 @@ public class GifDecoder {
             }
           }
         }
-      }
+      }*/
     }
     // copy each source line to the appropriate place in the destination
     int pass = 1;
