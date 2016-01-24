@@ -16,7 +16,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
-import java.util.Map;
 
 import au.com.codeka.weather.model.CurrentCondition;
 import au.com.codeka.weather.model.Forecast;
@@ -51,9 +50,10 @@ public class WeatherDetailsFragment extends Fragment {
         currentCondition.getDescription());
     ((TextView) rootView.findViewById(R.id.observation_location)).setText(
         String.format("at %s", currentCondition.getObservationLocation()));
-    long nanos = new Date().getTime() - currentCondition.getObservationTime().getTime();
+    Date now = new Date();
+    long millis = now.getTime() - currentCondition.getObservationTime().getTime();
     ((TextView) rootView.findViewById(R.id.observation_time)).setText(
-        String.format("%d minutes ago", nanos / 60000000000L));
+        String.format("%d minutes ago", millis / 60000L));
 
     ((TextView) rootView.findViewById(R.id.extra_info_1)).setText(
         String.format("Feels like %d°C, %d%% relative humidity",

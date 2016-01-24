@@ -49,9 +49,12 @@ public class WundergroundProvider extends Provider {
       JsonReader json = new JsonReader(new InputStreamReader(ins, "UTF-8"));
       WundergroundResponse response = gson.fromJson(json, WundergroundResponse.class);
 
+      long seconds = Long.parseLong(response.currentObservation.observationTime);
+      Date dt = new Date(seconds * 1000);
+
       builder.setCurrentConditions(new CurrentCondition.Builder()
           .setObservationLocation(response.currentObservation.observationLocation.full)
-          .setObservationTime(new Date(Integer.parseInt(response.currentObservation.observationTime) * 1000))
+          .setObservationTime(dt)
           .setTemperature(response.currentObservation.temp)
           .setFeelsLike(response.currentObservation.feelsLike)
           .setDescription(response.currentObservation.weather)
