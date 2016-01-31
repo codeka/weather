@@ -20,6 +20,7 @@ import au.com.codeka.weather.DebugLog;
 import au.com.codeka.weather.LenientDoubleTypeAdapter;
 import au.com.codeka.weather.model.CurrentCondition;
 import au.com.codeka.weather.model.Forecast;
+import au.com.codeka.weather.model.HourlyForecast;
 import au.com.codeka.weather.model.WeatherIcon;
 import au.com.codeka.weather.model.WeatherInfo;
 import au.com.codeka.weather.providers.Provider;
@@ -43,7 +44,9 @@ public class WundergroundProvider extends Provider {
       String latlng = builder.getLat() + "," + builder.getLng();
       Log.d(TAG, "Querying Wunderground for weather info for: " + latlng);
       URL url = new URL(String.format(
-          "http://api.wunderground.com/api/%s/conditions/forecast/q/%s.json", API_KEY, latlng));
+          "http://api.wunderground.com/api/%s/conditions/forecast/hourly/q/%s.json",
+          API_KEY,
+          latlng));
       Log.d(TAG, "Connecting to: " + url);
       URLConnection conn = url.openConnection();
       InputStream ins = new BufferedInputStream(conn.getInputStream());
@@ -61,8 +64,12 @@ public class WundergroundProvider extends Provider {
           .setTemperature(response.currentObservation.temp)
           .setFeelsLike(response.currentObservation.feelsLike)
           .setDescription(response.currentObservation.weather)
-          .setPrecipitation(response.currentObservation.precipitationLastHour, response.currentObservation.precipitationToday)
-          .setRelativeHumidity(Double.parseDouble(response.currentObservation.relativeHumidity.substring(0, response.currentObservation.relativeHumidity.length() - 1)))
+          .setPrecipitation(
+              response.currentObservation.precipitationLastHour,
+              response.currentObservation.precipitationToday)
+          .setRelativeHumidity(Double.parseDouble(
+              response.currentObservation.relativeHumidity.substring(
+                  0, response.currentObservation.relativeHumidity.length() - 1)))
           .setIcon(getWeatherIcon(response.currentObservation.icon))
           .build());
 
@@ -72,8 +79,20 @@ public class WundergroundProvider extends Provider {
             .setDescription(response.forecast.txtForecast.days.get(i * 2).forecastText)
             .setShortDescription(response.forecast.simpleForecast.days.get(i).conditions)
             .setIcon(getWeatherIcon(response.forecast.txtForecast.days.get(i * 2).icon))
-            .setHighTemperature(Double.parseDouble(response.forecast.simpleForecast.days.get(i).high.celsius))
-            .setLowTemperature(Double.parseDouble(response.forecast.simpleForecast.days.get(i).low.celsius))
+            .setHighTemperature(
+                Double.parseDouble(response.forecast.simpleForecast.days.get(i).high.celsius))
+            .setLowTemperature(
+                Double.parseDouble(response.forecast.simpleForecast.days.get(i).low.celsius))
+            .build());
+      }
+
+      for (int i = 0; i < response.hourlyForecast.size(); i++) {
+        builder.addHourlyForecast(new HourlyForecast.Builder()
+            .setHour(Integer.parseInt(response.hourlyForecast.get(i).time.hour))
+            .setTemperature(Double.parseDouble(response.hourlyForecast.get(i).temp.metric))
+            .setShortDescription(response.hourlyForecast.get(i).shortDescription)
+            .setQpfMillimeters(Double.parseDouble(response.hourlyForecast.get(i).qpf.metric))
+            .setIcon(getWeatherIcon(response.hourlyForecast.get(i).icon))
             .build());
       }
     } catch (IOException e) {
@@ -101,7 +120,7 @@ public class WundergroundProvider extends Provider {
     }
   }
 
-  private static final WeatherIcon getWeatherIcon(String name) {
+  private static WeatherIcon getWeatherIcon(String name) {
     // ignore the "chance" ones, they're just the same as non-chance ones.
     if (name.startsWith("chance")) {
       name = name.substring(6);

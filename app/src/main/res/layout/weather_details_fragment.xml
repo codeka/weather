@@ -34,7 +34,7 @@
           android:layout_marginStart="8dp"
           android:textSize="30sp"
           android:textStyle="bold"
-          android:text="23 °C" />
+          android:text="\??°C" />
       <TextView
           android:id="@+id/current_description"
           android:layout_width="wrap_content"
@@ -42,24 +42,21 @@
           android:layout_toEndOf="@id/current_temp"
           android:layout_marginStart="8dp"
           android:layout_alignBaseline="@id/current_temp"
-          android:textSize="24sp"
-          android:text="Clear" />
+          android:textSize="24sp" />
       <TextView
           android:id="@+id/observation_location"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_toEndOf="@id/current_icon"
           android:layout_below="@id/current_temp"
-          android:layout_marginStart="8dp"
-          android:text="at Killara, NSW" />
+          android:layout_marginStart="8dp"/>
       <TextView
           android:id="@+id/observation_time"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_toEndOf="@id/current_icon"
           android:layout_below="@id/observation_location"
-          android:layout_marginStart="8dp"
-          android:text="35 minutes ago" />
+          android:layout_marginStart="8dp" />
       <TextView
           android:id="@+id/extra_info_1"
           android:layout_width="wrap_content"
@@ -67,16 +64,26 @@
           android:layout_toEndOf="@id/current_icon"
           android:layout_below="@id/observation_time"
           android:layout_marginStart="8dp"
-          android:layout_marginTop="16dp"
-          android:text="Feels like 24°C, 76% rel. humidity" />
+          android:layout_marginTop="16dp"/>
       <TextView
           android:id="@+id/extra_info_2"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_toEndOf="@id/current_icon"
           android:layout_below="@id/extra_info_1"
-          android:layout_marginStart="8dp"
-          android:text="12mm last hour, 24mm today" />
+          android:layout_marginStart="8dp" />
     </RelativeLayout>
+
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+      <LinearLayout
+          android:id="@+id/hourly_container"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:orientation="horizontal">
+
+      </LinearLayout>
+    </HorizontalScrollView>
   </au.com.codeka.weather.CardLinearLayout>
 </com.github.ksoichiro.android.observablescrollview.ObservableScrollView>

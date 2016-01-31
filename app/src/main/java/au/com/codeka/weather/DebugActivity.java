@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import au.com.codeka.weather.location.GeocodeInfo;
 import au.com.codeka.weather.model.CurrentCondition;
 import au.com.codeka.weather.model.Forecast;
+import au.com.codeka.weather.model.HourlyForecast;
 import au.com.codeka.weather.model.WeatherInfo;
 
 /** Debug activity is used to display the raw JSON we have stored, for debugging. */
@@ -35,6 +36,9 @@ public class DebugActivity extends AppCompatActivity {
     sb.append("\n----------------------------------------\n\n");
     sb.append(gson.toJson(weatherInfo.getForecasts(),
         new TypeToken<ArrayList<Forecast>>() {}.getType()));
+    sb.append("\n----------------------------------------\n\n");
+    sb.append(gson.toJson(weatherInfo.getHourlyForecasts(),
+        new TypeToken<ArrayList<HourlyForecast>>() {}.getType()));
     sb.append("\n----------------------------------------\n\n");
     sb.append(gson.toJson(weatherInfo.getGeocodeInfo(), GeocodeInfo.class));
     sb.append("</pre></body></html>");

@@ -6,7 +6,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.github.florent37.materialviewpager.MaterialViewPagerHelper;
@@ -19,7 +21,9 @@ import java.util.Locale;
 
 import au.com.codeka.weather.model.CurrentCondition;
 import au.com.codeka.weather.model.Forecast;
+import au.com.codeka.weather.model.HourlyForecast;
 import au.com.codeka.weather.model.WeatherInfo;
+import au.com.codeka.weather.providers.wunderground.WundergroundResponse;
 
 /**
  * Fragment which actually displays the details about the weather.
@@ -82,6 +86,36 @@ public class WeatherDetailsFragment extends Fragment {
         String.format("%dmm last hour, %dmm today",
             Math.round(currentCondition.getPrecipitationLastHour()),
             Math.round(currentCondition.getPrecipitationToday())));
+
+    for (HourlyForecast hourlyForecast : weatherInfo.getHourlyForecasts()) {
+      LinearLayout parent = (LinearLayout) rootView.findViewById(R.id.hourly_container);
+      View hourlyForecastView =
+          inflater.inflate(R.layout.weather_details_hourly_row, parent, false);
+
+      isNight = hourlyForecast.getHour() < 6 || hourlyForecast.getHour() > 20;
+      String hourValue = Integer.toString(hourlyForecast.getHour()) + "am";
+      if (hourlyForecast.getHour() == 0) {
+        hourValue = "12am";
+      } else if (hourlyForecast.getHour() == 12) {
+        hourValue = "12pm";
+      } else if (hourlyForecast.getHour() > 12) {
+        hourValue = Integer.toString(hourlyForecast.getHour() - 12) + "pm";
+      }
+      ((TextView) hourlyForecastView.findViewById(R.id.forecast_hour)).setText(hourValue);
+      ((ImageView) hourlyForecastView.findViewById(R.id.forecast_icon)).setImageResource(
+          hourlyForecast.getIcon().getSmallIconId(isNight));
+      ((TextView) hourlyForecastView.findViewById(R.id.forecast_temp)).setText(
+          String.format("%d°C", Math.round(hourlyForecast.getTemperature())));
+      if (hourlyForecast.getQpfMillimeters() < 0.5) {
+        hourlyForecastView.findViewById(R.id.forecast_precipitation).setVisibility(View.GONE);
+      } else {
+        hourlyForecastView.findViewById(R.id.forecast_precipitation).setVisibility(View.VISIBLE);
+        ((TextView) hourlyForecastView.findViewById(R.id.forecast_precipitation)).setText(
+            String.format("%dmm", Math.round(hourlyForecast.getQpfMillimeters())));
+      }
+
+      parent.addView(hourlyForecastView);
+    }
 
     for (Forecast forecast : weatherInfo.getForecasts()) {
       CardLinearLayout forecastParent =

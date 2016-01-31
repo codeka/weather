@@ -12,8 +12,7 @@
       android:layout_alignParentTop="true"
       android:layout_alignParentStart="true"
       android:textSize="20sp"
-      android:textStyle="bold"
-      android:text="Tomorrow" />
+      android:textStyle="bold" />
 
   <ImageView
       android:id="@+id/forecast_icon"
@@ -33,7 +32,7 @@
       android:textColor="#940808"
       android:textSize="30sp"
       android:textStyle="bold"
-      android:text="23 °C" />
+      android:text="\??°C" />
   <TextView
       android:id="@+id/forecast_temp_separator"
       android:layout_width="wrap_content"
@@ -54,7 +53,7 @@
       android:textColor="#165eb7"
       android:textSize="26sp"
       android:textStyle="bold"
-      android:text="23 °C" />
+      android:text="\??°C" />
 
   <TextView
       android:id="@+id/forecast_description"
@@ -62,7 +61,6 @@
       android:layout_height="wrap_content"
       android:layout_alignParentStart="true"
       android:layout_marginStart="8dp"
-      android:layout_below="@id/forecast_icon"
-      android:text="Blah blah blah, yada yada yada, blah blah blah" />
+      android:layout_below="@id/forecast_icon" />
 
 </RelativeLayout>

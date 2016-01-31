@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import au.com.codeka.weather.location.GeocodeInfo;
+import au.com.codeka.weather.providers.wunderground.WundergroundResponse;
 
 /**
  * POJO that represents a combinations of the current weather conditions and a forecast of what's
@@ -21,6 +22,7 @@ public class WeatherInfo {
   private double lng;
   private GeocodeInfo geocodeInfo;
   private List<Forecast> forecasts;
+  private List<HourlyForecast> hourlyForecasts;
   private CurrentCondition currentCondition;
 
   public void save(SharedPreferences.Editor editor) {
@@ -33,6 +35,7 @@ public class WeatherInfo {
         .create();
     editor.putString("Weather.Geocode", gson.toJson(geocodeInfo));
     editor.putString("Weather.Forecasts", gson.toJson(forecasts));
+    editor.putString("Weather.HourlyForecasts", gson.toJson(hourlyForecasts));
     editor.putString("Weather.Current", gson.toJson(currentCondition));
   }
 
@@ -56,6 +59,8 @@ public class WeatherInfo {
     return forecasts;
   }
 
+  public List<HourlyForecast> getHourlyForecasts() { return hourlyForecasts; }
+
   public static class Builder {
     public static WeatherInfo load(SharedPreferences prefs) {
       if (!prefs.getBoolean("Weather.Exists", false)) {
@@ -74,8 +79,10 @@ public class WeatherInfo {
           GeocodeInfo.class);
       weatherInfo.forecasts = gson.fromJson(
           prefs.getString("Weather.Forecasts", ""),
-          new TypeToken<ArrayList<Forecast>>() {
-          }.getType());
+          new TypeToken<ArrayList<Forecast>>() {}.getType());
+      weatherInfo.hourlyForecasts = gson.fromJson(
+          prefs.getString("Weather.HourlyForecasts", ""),
+          new TypeToken<ArrayList<HourlyForecast>>() {}.getType());
       weatherInfo.currentCondition = gson.fromJson(
           prefs.getString("Weather.Current", ""),
           CurrentCondition.class);
@@ -90,6 +97,7 @@ public class WeatherInfo {
       weatherInfo.lat = lat;
       weatherInfo.lng = lng;
       weatherInfo.forecasts = new ArrayList<>();
+      weatherInfo.hourlyForecasts = new ArrayList<>();
     }
 
     public double getLat() {
@@ -116,6 +124,11 @@ public class WeatherInfo {
 
     public Builder setForecasts(List<Forecast> forecasts) {
       weatherInfo.forecasts.addAll(forecasts);
+      return this;
+    }
+
+    public Builder addHourlyForecast(HourlyForecast hourlyForecast) {
+      weatherInfo.hourlyForecasts.add(hourlyForecast);
       return this;
     }
 

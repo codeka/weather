@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Card"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+  <TextView
+      android:id="@+id/forecast_hour"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentTop="true"
+      android:layout_alignStart="@+id/forecast_icon"
+      android:layout_alignEnd="@+id/forecast_icon"
+      android:textAlignment="center"
+      android:gravity="center"
+      android:textSize="16sp"
+      android:textStyle="bold"
+      android:text="10pm" />
+
+  <ImageView
+      android:id="@+id/forecast_icon"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/forecast_hour"
+      android:paddingStart="6dp"
+      android:paddingEnd="6dp"
+      android:layout_alignParentStart="true"
+      android:src="@drawable/weather_clear_small" />
+
+  <TextView
+      android:id="@+id/forecast_temp"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/forecast_icon"
+      android:layout_alignStart="@+id/forecast_icon"
+      android:layout_alignEnd="@+id/forecast_icon"
+      android:textAlignment="center"
+      android:gravity="center"
+      android:textSize="16sp"
+      android:textStyle="bold"
+      android:text="\??°C" />
+
+
+  <TextView
+      android:id="@+id/forecast_precipitation"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/forecast_temp"
+      android:layout_alignStart="@+id/forecast_icon"
+      android:layout_alignEnd="@+id/forecast_icon"
+      android:textAlignment="center"
+      android:gravity="center"
+      android:textSize="12sp"
+      android:textColor="#1f6af4"
+      android:textStyle="bold"
+      android:text="2mm" />
+
+</RelativeLayout>
