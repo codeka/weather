@@ -1,5 +1,7 @@
 package au.com.codeka.weather.model;
 
+import android.support.annotation.Nullable;
+
 import java.util.Date;
 
 /**
@@ -8,11 +10,11 @@ import java.util.Date;
 public class CurrentCondition {
   private String observationLocation;
   private Date observationTime;
-  private double temperature;
-  private double feelsLike;
+  @Nullable private Double temperature;
+  @Nullable private Double feelsLike;
   private double precipitationLastHour;
   private double precipitationToday;
-  private double relativeHumidity;
+  @Nullable private Double relativeHumidity;
   private String description;
   private WeatherIcon icon;
 
@@ -24,11 +26,13 @@ public class CurrentCondition {
     return observationTime;
   }
 
-  public double getTemperature() {
+  @Nullable
+  public Double getTemperature() {
     return temperature;
   }
 
-  public double getFeelsLike() {
+  @Nullable
+  public Double getFeelsLike() {
     return feelsLike;
   }
 
@@ -40,7 +44,8 @@ public class CurrentCondition {
     return precipitationToday;
   }
 
-  public double getRelativeHumidity() {
+  @Nullable
+  public Double getRelativeHumidity() {
     return relativeHumidity;
   }
 
@@ -69,23 +74,23 @@ public class CurrentCondition {
       return this;
     }
 
-    public Builder setTemperature(double temp) {
+    public Builder setTemperature(@Nullable Double temp) {
       currentCondition.temperature = temp;
       return this;
     }
 
-    public Builder setFeelsLike(double temp) {
+    public Builder setFeelsLike(@Nullable Double temp) {
       currentCondition.feelsLike = temp;
       return this;
     }
 
-    public Builder setPrecipitation(double lastHour, double today) {
-      currentCondition.precipitationLastHour = lastHour;
-      currentCondition.precipitationToday = today;
+    public Builder setPrecipitation(@Nullable Double lastHour, @Nullable Double today) {
+      currentCondition.precipitationLastHour = (lastHour == null ? 0 : lastHour);
+      currentCondition.precipitationToday = (today == null ? 0 : today);
       return this;
     }
 
-    public Builder setRelativeHumidity(double percent) {
+    public Builder setRelativeHumidity(@Nullable Double percent) {
       currentCondition.relativeHumidity = percent;
       return this;
     }

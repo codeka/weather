@@ -37,15 +37,30 @@ public class WeatherDetailsFragment extends Fragment {
     scrollView = (ObservableScrollView) rootView.findViewById(R.id.scroll_view);
 
     WeatherInfo weatherInfo = WeatherManager.i.getCurrentWeather(getActivity());
+    if (weatherInfo == null) {
+      // TODO: refresh once it's actually loaded...
+      return rootView;
+    }
+
     // a bit hacky...
     int hour = new GregorianCalendar().get(Calendar.HOUR_OF_DAY);
     boolean isNight = hour < 6 || hour > 20;
 
     CurrentCondition currentCondition = weatherInfo.getCurrentCondition();
+    if (currentCondition == null) {
+      // I don't think this should happen?
+      // TODO: refresh once it's actually loaded anyway.
+      return rootView;
+    }
+
     ((ImageView) rootView.findViewById(R.id.current_icon)).setImageResource(
         currentCondition.getIcon().getLargeIconId(isNight));
-    ((TextView) rootView.findViewById(R.id.current_temp)).setText(
-        String.format("%d°C", Math.round(currentCondition.getTemperature())));
+    if (currentCondition.getTemperature() == null) {
+      ((TextView) rootView.findViewById(R.id.current_temp)).setText("??°C");
+    } else {
+      ((TextView) rootView.findViewById(R.id.current_temp)).setText(
+          String.format("%d°C", Math.round(currentCondition.getTemperature())));
+    }
     ((TextView) rootView.findViewById(R.id.current_description)).setText(
         currentCondition.getDescription());
     ((TextView) rootView.findViewById(R.id.observation_location)).setText(
@@ -55,10 +70,14 @@ public class WeatherDetailsFragment extends Fragment {
     ((TextView) rootView.findViewById(R.id.observation_time)).setText(
         String.format("%d minutes ago", millis / 60000L));
 
+    String feelsLike = currentCondition.getFeelsLike() == null
+        ? "??"
+        : Long.toString(Math.round(currentCondition.getFeelsLike()));
+    String relativeHumidity = currentCondition.getRelativeHumidity() == null
+        ? "??"
+        : Long.toString(Math.round(currentCondition.getRelativeHumidity()));
     ((TextView) rootView.findViewById(R.id.extra_info_1)).setText(
-        String.format("Feels like %d°C, %d%% relative humidity",
-            Math.round(currentCondition.getFeelsLike()),
-            Math.round(currentCondition.getRelativeHumidity())));
+        String.format("Feels like %s°C, %s%% relative humidity", feelsLike, relativeHumidity));
     ((TextView) rootView.findViewById(R.id.extra_info_2)).setText(
         String.format("%dmm last hour, %dmm today",
             Math.round(currentCondition.getPrecipitationLastHour()),
@@ -67,7 +86,8 @@ public class WeatherDetailsFragment extends Fragment {
     for (Forecast forecast : weatherInfo.getForecasts()) {
       CardLinearLayout forecastParent =
           (CardLinearLayout) rootView.findViewById(R.id.weather_cards);
-      View forecastView = inflater.inflate(R.layout.weather_details_forecast_row, forecastParent, false);
+      View forecastView = inflater.inflate(
+          R.layout.weather_details_forecast_row, forecastParent, false);
 
       String day = "Today";
       if (forecast.getOffset() == 1) {

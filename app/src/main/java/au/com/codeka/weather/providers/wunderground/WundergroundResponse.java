@@ -1,5 +1,7 @@
 package au.com.codeka.weather.providers.wunderground;
 
+import android.support.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
@@ -23,17 +25,23 @@ public class WundergroundResponse {
     String observationTime; // seconds since epoch
     String weather; // e.g. "Light Rain", "Sunny" etc.
     @SerializedName("temp_c")
-    double temp; // temperature in degrees celcius
+    @Nullable
+    Double temp; // temperature in degrees celsius
     String relativeHumidity;
     String windDir; // e.g. N, NE, etc.
-    double windKph;
-    double windGustKph;
+    @Nullable
+    Double windKph;
+    @Nullable
+    Double windGustKph;
     @SerializedName("feelslike_c")
-    double feelsLike; // "feels like" temperaure in degrees celcius
+    @Nullable
+    Double feelsLike; // "feels like" temperaure in degrees celcius
     @SerializedName("precip_1hr_metric")
-    double precipitationLastHour; // in mm
+    @Nullable
+    Double precipitationLastHour; // in mm
     @SerializedName("precip_today_metric")
-    double precipitationToday; // in mm
+    @Nullable
+    Double precipitationToday; // in mm
     String icon;
   }
 

@@ -77,6 +77,10 @@ public class WeatherMapFragment extends Fragment {
       public void onMapReady(GoogleMap googleMap) {
         // Start off at the weather location
         WeatherInfo weatherInfo = WeatherManager.i.getCurrentWeather(getActivity());
+        if (weatherInfo == null) {
+          // TODO: refresh once it loads
+          return;
+        }
         LatLng latlng = new LatLng(weatherInfo.getLat(), weatherInfo.getLng());
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, 8.0f));
 

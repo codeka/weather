@@ -154,6 +154,9 @@ public class WeatherActivity extends AppCompatActivity {
 
       switch (position) {
         case 0:
+          if (weatherInfo == null || weatherInfo.getGeocodeInfo() == null) {
+            return "Your location";
+          }
           return weatherInfo.getGeocodeInfo().getShortName();
         case 1:
           return "Map";
@@ -166,6 +169,10 @@ public class WeatherActivity extends AppCompatActivity {
     @Override
     public HeaderDesign getHeaderDesign(int page) {
       WeatherInfo weatherInfo = WeatherManager.i.getCurrentWeather(WeatherActivity.this);
+      if (weatherInfo == null) {
+        // TODO: refresh once it's loaded.
+        return null;
+      }
 
       // a bit hacky...
       int hour = new GregorianCalendar().get(Calendar.HOUR_OF_DAY);

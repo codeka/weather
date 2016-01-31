@@ -17,6 +17,7 @@ import java.net.URLConnection;
 import java.util.Date;
 
 import au.com.codeka.weather.DebugLog;
+import au.com.codeka.weather.LenientDoubleTypeAdapter;
 import au.com.codeka.weather.model.CurrentCondition;
 import au.com.codeka.weather.model.Forecast;
 import au.com.codeka.weather.model.WeatherIcon;
@@ -35,6 +36,7 @@ public class WundergroundProvider extends Provider {
   public void fetchWeather(WeatherInfo.Builder builder) {
     Gson gson = new GsonBuilder()
         .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+        .registerTypeAdapter(Double.class, new LenientDoubleTypeAdapter())
         .create();
 
     try {
@@ -48,6 +50,7 @@ public class WundergroundProvider extends Provider {
 
       JsonReader json = new JsonReader(new InputStreamReader(ins, "UTF-8"));
       WundergroundResponse response = gson.fromJson(json, WundergroundResponse.class);
+      Log.d(TAG, "Response parsed successfully.");
 
       long seconds = Long.parseLong(response.currentObservation.observationTime);
       Date dt = new Date(seconds * 1000);

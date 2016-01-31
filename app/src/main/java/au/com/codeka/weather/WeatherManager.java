@@ -37,6 +37,7 @@ public class WeatherManager {
     final SharedPreferences prefs =
         context.getSharedPreferences("au.com.codeka.weather", Context.MODE_PRIVATE);
 
+    Log.d(TAG, "Doing a location query.");
     LocationProvider locationProvider = new LocationProvider(context);
     locationProvider.getLocation(force, new LocationProvider.LocationFetchedListener() {
       @Override
