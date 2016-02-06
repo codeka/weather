@@ -1,5 +1,6 @@
 package au.com.codeka.weather;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
@@ -61,7 +62,7 @@ public class WeatherMapFragment extends Fragment {
 
     mapFragment = new SupportMapFragment();
     FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
-    fragmentTransaction.add(R.id.map, mapFragment);
+    fragmentTransaction.replace(R.id.map, mapFragment);
     fragmentTransaction.commit();
 
     refreshButton.setOnClickListener(new View.OnClickListener() {
@@ -153,7 +154,12 @@ public class WeatherMapFragment extends Fragment {
 
       overlayLoading = false;
       needsReposition = true;
-      getActivity().runOnUiThread(updateOverlayFrameRunnable);
+
+      // could be null if we've finished by the time this runs.
+      Activity activity = getActivity();
+      if (activity != null) {
+        activity.runOnUiThread(updateOverlayFrameRunnable);
+      }
     }
   };
 
