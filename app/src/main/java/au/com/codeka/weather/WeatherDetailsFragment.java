@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -134,7 +135,15 @@ public class WeatherDetailsFragment extends Fragment {
 
     CardLinearLayout forecastParent =
         (CardLinearLayout) rootView.findViewById(R.id.weather_cards);
-    forecastParent.removeAllViews();
+     // Remove any views after the HorizontalScrollView, since they'll be old entries
+    for (int i = 0; i < forecastParent.getChildCount(); i++) {
+      if (forecastParent.getChildAt(i) instanceof HorizontalScrollView) {
+        for (int j = i + 1; j < forecastParent.getChildCount();) {
+          forecastParent.removeViewAt(j);
+        }
+        break;
+      }
+    }
     for (Forecast forecast : weatherInfo.getForecasts()) {
       View forecastView = inflater.inflate(
           R.layout.weather_details_forecast_row, forecastParent, false);
