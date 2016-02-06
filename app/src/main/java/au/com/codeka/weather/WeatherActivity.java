@@ -72,6 +72,10 @@ public class WeatherActivity extends AppCompatActivity {
     viewPager.setMaterialViewPagerListener(pagerListener);
     viewPager.getPagerTitleStrip().setViewPager(viewPager.getViewPager());
 
+    WeatherInfo weatherInfo = WeatherManager.i.getCurrentWeather(WeatherActivity.this);
+    if (weatherInfo == null || weatherInfo.getCurrentCondition() == null) {
+      WeatherManager.i.refreshWeather(this, true);
+    }
   }
 
   @Override
@@ -174,11 +178,15 @@ public class WeatherActivity extends AppCompatActivity {
         return null;
       }
 
+      CurrentCondition currentCondition = weatherInfo.getCurrentCondition();
+      if (currentCondition == null) {
+        // TODO: refresh once it's loaded.
+        return null;
+      }
+
       // a bit hacky...
       int hour = new GregorianCalendar().get(Calendar.HOUR_OF_DAY);
       boolean isNight = hour < 6 || hour > 20;
-
-      CurrentCondition currentCondition = weatherInfo.getCurrentCondition();
 
       String assetName = currentCondition.getIcon().getHeaderAssetName(isNight);
       Bitmap bitmap;

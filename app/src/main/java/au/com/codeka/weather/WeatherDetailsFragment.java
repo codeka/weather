@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,12 +22,12 @@ import au.com.codeka.weather.model.CurrentCondition;
 import au.com.codeka.weather.model.Forecast;
 import au.com.codeka.weather.model.HourlyForecast;
 import au.com.codeka.weather.model.WeatherInfo;
-import au.com.codeka.weather.providers.wunderground.WundergroundResponse;
 
 /**
  * Fragment which actually displays the details about the weather.
  */
 public class WeatherDetailsFragment extends Fragment {
+  private View rootView;
   private ObservableScrollView scrollView;
 
   @Override
@@ -36,26 +35,41 @@ public class WeatherDetailsFragment extends Fragment {
       LayoutInflater inflater,
       ViewGroup container,
       Bundle savedInstanceState) {
-    ViewGroup rootView = (ViewGroup) inflater.inflate(
+    rootView = inflater.inflate(
         R.layout.weather_details_fragment, container, false);
     scrollView = (ObservableScrollView) rootView.findViewById(R.id.scroll_view);
 
+    return rootView;
+  }
+
+  @Override
+  public void onStart() {
+    super.onStart();
+    WeatherManager.i.addUpdateRunnable(weatherUpdatedRunnable);
+    refresh();
+  }
+
+  public void onStop() {
+    super.onStop();
+    WeatherManager.i.removeUpdateRunnable(weatherUpdatedRunnable);
+  }
+
+  private void refresh() {
     WeatherInfo weatherInfo = WeatherManager.i.getCurrentWeather(getActivity());
     if (weatherInfo == null) {
-      // TODO: refresh once it's actually loaded...
-      return rootView;
+      return;
+    }
+
+    CurrentCondition currentCondition = weatherInfo.getCurrentCondition();
+    if (currentCondition == null) {
+      return;
     }
 
     // a bit hacky...
     int hour = new GregorianCalendar().get(Calendar.HOUR_OF_DAY);
     boolean isNight = hour < 6 || hour > 20;
 
-    CurrentCondition currentCondition = weatherInfo.getCurrentCondition();
-    if (currentCondition == null) {
-      // I don't think this should happen?
-      // TODO: refresh once it's actually loaded anyway.
-      return rootView;
-    }
+    LayoutInflater inflater = LayoutInflater.from(getActivity());
 
     ((ImageView) rootView.findViewById(R.id.current_icon)).setImageResource(
         currentCondition.getIcon().getLargeIconId(isNight));
@@ -87,10 +101,11 @@ public class WeatherDetailsFragment extends Fragment {
             Math.round(currentCondition.getPrecipitationLastHour()),
             Math.round(currentCondition.getPrecipitationToday())));
 
+    LinearLayout hourlyParent = (LinearLayout) rootView.findViewById(R.id.hourly_container);
+    hourlyParent.removeAllViews();
     for (HourlyForecast hourlyForecast : weatherInfo.getHourlyForecasts()) {
-      LinearLayout parent = (LinearLayout) rootView.findViewById(R.id.hourly_container);
       View hourlyForecastView =
-          inflater.inflate(R.layout.weather_details_hourly_row, parent, false);
+          inflater.inflate(R.layout.weather_details_hourly_row, hourlyParent, false);
 
       isNight = hourlyForecast.getHour() < 6 || hourlyForecast.getHour() > 20;
       String hourValue = Integer.toString(hourlyForecast.getHour()) + "am";
@@ -114,12 +129,13 @@ public class WeatherDetailsFragment extends Fragment {
             String.format("%dmm", Math.round(hourlyForecast.getQpfMillimeters())));
       }
 
-      parent.addView(hourlyForecastView);
+      hourlyParent.addView(hourlyForecastView);
     }
 
+    CardLinearLayout forecastParent =
+        (CardLinearLayout) rootView.findViewById(R.id.weather_cards);
+    forecastParent.removeAllViews();
     for (Forecast forecast : weatherInfo.getForecasts()) {
-      CardLinearLayout forecastParent =
-          (CardLinearLayout) rootView.findViewById(R.id.weather_cards);
       View forecastView = inflater.inflate(
           R.layout.weather_details_forecast_row, forecastParent, false);
 
@@ -143,12 +159,23 @@ public class WeatherDetailsFragment extends Fragment {
 
       forecastParent.addView(forecastView);
     }
-
-    return rootView;
   }
 
   @Override
   public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     MaterialViewPagerHelper.registerScrollView(getActivity(), scrollView, null);
   }
+
+  // Called when the weather updates.
+  private final Runnable weatherUpdatedRunnable = new Runnable() {
+    @Override
+    public void run() {
+      getActivity().runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          refresh();
+        }
+      });
+    }
+  };
 }

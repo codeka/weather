@@ -8,6 +8,7 @@ import android.util.Log;
 import com.google.android.gms.maps.model.LatLngBounds;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import au.com.codeka.weather.location.GeocodeInfo;
 import au.com.codeka.weather.location.GeocodeProvider;
@@ -22,10 +23,20 @@ public class WeatherManager {
   private static final long STATIONARY_QUERY_TIME_MS = 3 * 60 * 60 * 1000; // every three hours
   private static final long MOVING_QUERY_TIME_MS = 60 * 1000; // every minute
 
-
   private boolean queryInProgress;
 
+  private ArrayList<Runnable> onUpdateRunnables = new ArrayList<>();
+
   private WeatherManager() {
+  }
+
+  /** Adds a runnable to be called when the weather is updated (may not happen on UI thread) */
+  public void addUpdateRunnable(Runnable runnable) {
+    onUpdateRunnables.add(runnable);
+  }
+
+  public void removeUpdateRunnable(Runnable runnable) {
+    onUpdateRunnables.remove(runnable);
   }
 
   public void refreshWeather(final Context context, final boolean force) {
@@ -141,6 +152,9 @@ public class WeatherManager {
         }
 
         WeatherWidgetProvider.notifyRefresh(context);
+        for (Runnable runnable : onUpdateRunnables) {
+          runnable.run();
+        }
         queryInProgress = false;
       }
     });
