@@ -44,7 +44,7 @@ public class WundergroundProvider extends Provider {
       String latlng = builder.getLat() + "," + builder.getLng();
       Log.d(TAG, "Querying Wunderground for weather info for: " + latlng);
       URL url = new URL(String.format(
-          "http://api.wunderground.com/api/%s/conditions/forecast/hourly/q/%s.json",
+          "http://api.wunderground.com/api/%s/conditions/forecast10day/hourly/q/%s.json",
           API_KEY,
           latlng));
       Log.d(TAG, "Connecting to: " + url);
@@ -73,7 +73,7 @@ public class WundergroundProvider extends Provider {
           .setIcon(getWeatherIcon(response.currentObservation.icon))
           .build());
 
-      for (int i = 0; i < 4; i++) {
+      for (int i = 0; i < response.forecast.txtForecast.days.size() / 2; i++) {
         builder.addForecast(new Forecast.Builder()
             .setOffset(i)
             .setDescription(response.forecast.txtForecast.days.get(i * 2).forecastText)
