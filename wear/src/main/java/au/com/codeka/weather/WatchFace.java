@@ -1,32 +1,50 @@
 package au.com.codeka.weather;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
+import android.provider.CalendarContract;
+import android.support.v4.app.ActivityCompat;
+import android.support.wearable.provider.WearableCalendarContract;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
+import android.text.TextPaint;
+import android.text.format.DateUtils;
 import android.text.format.Time;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.WindowInsets;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by dean on 17/03/2016.
+ * Watch face for my watch.
  */
 public class WatchFace extends CanvasWatchFaceService {
+  private static final String TAG = "WatchFace";
+
   /**
    * Update rate in milliseconds for interactive mode. We update once a second since seconds are
    * displayed in interactive mode.
@@ -40,19 +58,19 @@ public class WatchFace extends CanvasWatchFaceService {
 
   @Override
   public Engine onCreateEngine() {
-    return new Engine();
+    return new WatchFaceEngine();
   }
 
   private static class EngineHandler extends Handler {
-    private final WeakReference<Engine> weakReference;
+    private final WeakReference<WatchFaceEngine> weakReference;
 
-    public EngineHandler(Engine reference) {
+    public EngineHandler(WatchFaceEngine reference) {
       weakReference = new WeakReference<>(reference);
     }
 
     @Override
     public void handleMessage(Message msg) {
-      Engine engine = weakReference.get();
+      WatchFaceEngine engine = weakReference.get();
       if (engine != null) {
         switch (msg.what) {
           case MSG_UPDATE_TIME:
@@ -63,7 +81,9 @@ public class WatchFace extends CanvasWatchFaceService {
     }
   }
 
-  private class Engine extends CanvasWatchFaceService.Engine {
+  private class WatchFaceEngine extends CanvasWatchFaceService.Engine {
+    static final int MSG_LOAD_MEETINGS = 0;
+
     final Handler engineHandler = new EngineHandler(this);
     boolean registeredTimeZoneReceiver = false;
     Paint backgroundPaint;
@@ -80,20 +100,51 @@ public class WatchFace extends CanvasWatchFaceService {
     int tapCount;
     Typeface typeface;
 
-    float xOffset;
-    float yOffset;
-
     /**
      * Whether the display supports fewer bits for each color in ambient mode. When true, we
      * disable anti-aliasing in ambient mode.
      */
     boolean lowBitAmbient;
 
+    private boolean isReceiverRegistered;
+    private boolean calendarPermissionApproved;
+    private String calendarNotApprovedMessage;
+    private AsyncTask<Void, Void, ArrayList<EventDetails>> loadMeetingsTask;
+    ArrayList<EventDetails> events = null;
+
+    /** Handler to load the meetings once a minute in interactive mode. */
+    final Handler loadMeetingsHandler = new Handler() {
+      @Override
+      public void handleMessage(Message message) {
+        switch (message.what) {
+          case MSG_LOAD_MEETINGS:
+            cancelLoadMeetingTask();
+
+            // Loads meetings.
+            if (calendarPermissionApproved) {
+              loadMeetingsTask = new LoadMeetingsTask();
+              loadMeetingsTask.execute();
+            }
+            break;
+        }
+      }
+    };
+
     @Override
     public void onCreate(SurfaceHolder holder) {
       super.onCreate(holder);
 
       typeface = Typeface.createFromAsset(getAssets(), "led-counter-7.regular.ttf");
+
+      calendarPermissionApproved = ActivityCompat.checkSelfPermission(
+          getApplicationContext(),
+          Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED;
+      if (calendarPermissionApproved) {
+        Log.w(TAG, "We've got the calendar permission.");
+        loadMeetingsHandler.sendEmptyMessage(MSG_LOAD_MEETINGS);
+      } else {
+        Log.w(TAG, "We DON'T have the calendar permission.");
+      }
 
       setWatchFaceStyle(new WatchFaceStyle.Builder(WatchFace.this)
           .setCardPeekMode(WatchFaceStyle.PEEK_MODE_VARIABLE)
@@ -102,7 +153,6 @@ public class WatchFace extends CanvasWatchFaceService {
           .setAcceptsTapEvents(true)
           .build());
       Resources resources = WatchFace.this.getResources();
-      yOffset = resources.getDimension(R.dimen.digital_y_offset);
 
       backgroundPaint = new Paint();
       backgroundPaint.setColor(resources.getColor(R.color.background));
@@ -113,9 +163,20 @@ public class WatchFace extends CanvasWatchFaceService {
       time = new Time();
     }
 
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        if (Intent.ACTION_PROVIDER_CHANGED.equals(intent.getAction())
+            && WearableCalendarContract.CONTENT_URI.equals(intent.getData())) {
+          loadMeetingsHandler.sendEmptyMessage(MSG_LOAD_MEETINGS);
+        }
+      }
+    };
+
     @Override
     public void onDestroy() {
       engineHandler.removeMessages(MSG_UPDATE_TIME);
+      loadMeetingsHandler.removeMessages(MSG_LOAD_MEETINGS);
       super.onDestroy();
     }
 
@@ -132,35 +193,46 @@ public class WatchFace extends CanvasWatchFaceService {
       super.onVisibilityChanged(visible);
 
       if (visible) {
-        registerReceiver();
-
         // Update time zone in case it changed while we weren't visible.
         time.clear(TimeZone.getDefault().getID());
         time.setToNow();
+
+        if (!registeredTimeZoneReceiver) {
+          IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
+          registerReceiver(mTimeZoneReceiver, filter);
+          registeredTimeZoneReceiver = true;
+        }
+
+        // Enables app to handle 23+ (M+) style permissions.
+        calendarPermissionApproved = ActivityCompat.checkSelfPermission(
+            getApplicationContext(),
+            Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED;
+
+        if (calendarPermissionApproved && !isReceiverRegistered) {
+          IntentFilter filter = new IntentFilter(Intent.ACTION_PROVIDER_CHANGED);
+          filter.addDataScheme("content");
+          filter.addDataAuthority(WearableCalendarContract.AUTHORITY, null);
+          registerReceiver(broadcastReceiver, filter);
+          isReceiverRegistered = true;
+        }
+
+        loadMeetingsHandler.sendEmptyMessage(MSG_LOAD_MEETINGS);
       } else {
-        unregisterReceiver();
+        if (registeredTimeZoneReceiver) {
+          unregisterReceiver(mTimeZoneReceiver);
+          registeredTimeZoneReceiver = false;
+        }
+
+        if (isReceiverRegistered) {
+          unregisterReceiver(broadcastReceiver);
+          isReceiverRegistered = false;
+        }
+        loadMeetingsHandler.removeMessages(MSG_LOAD_MEETINGS);
       }
 
       // Whether the timer should be running depends on whether we're visible (as well as
       // whether we're in ambient mode), so we may need to start or stop the timer.
       updateTimer();
-    }
-
-    private void registerReceiver() {
-      if (registeredTimeZoneReceiver) {
-        return;
-      }
-      registeredTimeZoneReceiver = true;
-      IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
-      WatchFace.this.registerReceiver(mTimeZoneReceiver, filter);
-    }
-
-    private void unregisterReceiver() {
-      if (!registeredTimeZoneReceiver) {
-        return;
-      }
-      registeredTimeZoneReceiver = false;
-      WatchFace.this.unregisterReceiver(mTimeZoneReceiver);
     }
 
     @Override
@@ -170,8 +242,6 @@ public class WatchFace extends CanvasWatchFaceService {
       // Load resources that have alternate values for round watches.
       Resources resources = WatchFace.this.getResources();
       boolean isRound = insets.isRound();
-      xOffset = resources.getDimension(isRound
-          ? R.dimen.digital_x_offset_round : R.dimen.digital_x_offset);
       float textSize = resources.getDimension(isRound
           ? R.dimen.digital_text_size_round : R.dimen.digital_text_size);
 
@@ -223,10 +293,20 @@ public class WatchFace extends CanvasWatchFaceService {
         case TAP_TYPE_TAP:
           // The user has completed the tap gesture.
           tapCount++;
-          backgroundPaint.setColor(resources.getColor(tapCount % 2 == 0 ?
-              R.color.background : R.color.background2));
+          if (!calendarPermissionApproved) {
+            //TODO
+            //Intent permissionIntent = new Intent(
+            //    getApplicationContext(),
+            //    CalendarWatchFacePermissionActivity.class);
+            //permissionIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            //startActivity(permissionIntent);
+          } else {
+            backgroundPaint.setColor(resources.getColor(tapCount % 2 == 0 ?
+                R.color.background : R.color.background2));
+          }
           break;
       }
+
       invalidate();
     }
 
@@ -290,10 +370,9 @@ public class WatchFace extends CanvasWatchFaceService {
       if (!isInAmbientMode()) {
         textPaint.setAlpha(120);
         textPaint.setStrokeWidth(2.0f);
-        canvas.drawLine(
-            0, hhmmHeight + (hhmmHeight * 0.6f) + 4.0f,
-            canvas.getWidth(), hhmmHeight + (hhmmHeight * 0.6f) + 4.0f,
-            textPaint);
+        float y = (((canvas.getHeight() / 2.0f) - (hhmmRealHeight ) + ampmHeight) +
+            (hhmmHeight + (hhmmHeight * 0.6f))) / 2.0f;
+        canvas.drawLine(0, y, canvas.getWidth(), y, textPaint);
         textPaint.setAlpha(255);
       }
 
@@ -328,8 +407,45 @@ public class WatchFace extends CanvasWatchFaceService {
             (canvas.getWidth() / 2.0f) - ((hhmmWidth + ssWidth) / 2.0f) + hhmmWidth,
             (canvas.getHeight() / 2.0f) + (hhmmRealHeight / 2.0f),
             textPaint);
-        textPaint.setTextSize(hhmmHeight);
+
+        if (events != null && events.size() > 0) {
+          textPaint.setTextSize(hhmmHeight * 0.4f);
+          textPaint.setColor(Color.YELLOW);
+
+          EventDetails event = events.get(0);
+          Calendar cal = Calendar.getInstance();
+          cal.setTimeInMillis(event.startTime);
+          String title = String.format("%d:%02d %s",
+              cal.get(Calendar.HOUR), cal.get(Calendar.MINUTE), event.title);
+          title = ensureNoWiderThan(textPaint, title, canvas.getWidth() * 0.9f);
+          float titleWidth = textPaint.measureText(title);
+          canvas.drawText(
+              title,
+              (canvas.getWidth() / 2.0f) - (titleWidth / 2.0f),
+              (canvas.getHeight() / 2.0f) + hhmmHeight,
+              textPaint);
+
+          String room = event.room;
+          room = ensureNoWiderThan(textPaint, room, canvas.getWidth() * 0.8f);
+          float roomWidth = textPaint.measureText(room);
+          canvas.drawText(
+              room,
+              (canvas.getWidth() / 2.0f) - (roomWidth / 2.0f),
+              (canvas.getHeight() / 2.0f) + hhmmHeight + (hhmmHeight * 0.4f),
+              textPaint);
+        }
       }
+
+      textPaint.setTextSize(hhmmHeight);
+    }
+
+    private String ensureNoWiderThan(Paint textPaint, String str, float maxWidth) {
+      float width = textPaint.measureText(str);
+      while (width > maxWidth) {
+        str = str.substring(0, str.length() - 4) + "...";
+        width = textPaint.measureText(str);
+      }
+      return str;
     }
 
     private String getMonthName(int month) {
@@ -344,6 +460,20 @@ public class WatchFace extends CanvasWatchFaceService {
           "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
       };
       return dayNames[dayOfWeek];
+    }
+
+    private void cancelLoadMeetingTask() {
+      if (loadMeetingsTask != null) {
+        loadMeetingsTask.cancel(true);
+      }
+    }
+
+    private void onMeetingsLoaded(ArrayList<EventDetails> result) {
+      if (result != null) {
+        Log.i(TAG, "meetings loaded: " + result.size());
+        events = new ArrayList<>(result);
+        invalidate();
+      }
     }
 
     /**
@@ -375,6 +505,139 @@ public class WatchFace extends CanvasWatchFaceService {
         long delayMs = INTERACTIVE_UPDATE_RATE_MS
             - (timeMs % INTERACTIVE_UPDATE_RATE_MS);
         engineHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME, delayMs);
+      }
+    }
+
+    /**
+     * Asynchronous task to load the meetings from the content provider and report the number of
+     * meetings back via {@link #onMeetingsLoaded}.
+     */
+    private class LoadMeetingsTask extends AsyncTask<Void, Void, ArrayList<EventDetails>> {
+      private PowerManager.WakeLock wakeLock;
+
+      @Override
+      protected ArrayList<EventDetails> doInBackground(Void... voids) {
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "WatchFaceWakeLock");
+        wakeLock.acquire();
+
+        // include meetings that started 15 minutes ago
+        long begin = System.currentTimeMillis() - (15 * 60 * 1000);
+        Uri.Builder builder = WearableCalendarContract.Instances.CONTENT_URI.buildUpon();
+        ContentUris.appendId(builder, begin);
+        ContentUris.appendId(builder, begin + DateUtils.DAY_IN_MILLIS);
+        Cursor cursor = getContentResolver().query(builder.build(),
+            new String[] {
+                CalendarContract.Instances.EVENT_ID,
+                CalendarContract.Instances.TITLE,
+                CalendarContract.Instances.ALL_DAY,
+                CalendarContract.Instances.SELF_ATTENDEE_STATUS,
+                CalendarContract.Instances.EVENT_LOCATION,
+                CalendarContract.Instances.DTSTART
+            },
+            null, null, null);
+        int numMeetings = cursor.getCount();
+        Log.i(TAG, "Num meetings: " + numMeetings);
+
+        String[] columnNames = cursor.getColumnNames();
+        for (int i = 0; i < columnNames.length; i++) {
+          Log.i(TAG, "Column[" + i + "] = " + columnNames[i]);
+        }
+
+        ArrayList<EventDetails> newEvents = new ArrayList<>();
+        while (cursor.moveToNext()) {
+          // These must match the order in the query above.
+          String eventId = cursor.getString(0);
+          String title = cursor.getString(1);
+          boolean allDay = cursor.getInt(2) != 0;
+          int selfAttendeeStatus = cursor.getInt(3);
+          String location = cursor.getString(4);
+          long startTime = cursor.getLong(5);
+
+          Log.d(TAG, "----------");
+          Log.d(TAG, "title: " + title);
+          if (allDay) {
+            Log.d(TAG, "Event is all-day event, skipping.");
+            continue;
+          }
+          if (selfAttendeeStatus != 1) {
+            Log.d(TAG, "SelfAttendeeStatus != 1, skipping.");
+            continue;
+          }
+          Log.d(TAG, "self-attendee status: " + selfAttendeeStatus);
+          newEvents.add(new EventDetails(eventId, title, location, startTime));
+        }
+        cursor.close();
+
+        cursor = getContentResolver().query(
+            WearableCalendarContract.Attendees.CONTENT_URI,
+            new String[] {
+                CalendarContract.Attendees.ATTENDEE_NAME,
+                CalendarContract.Attendees.ATTENDEE_STATUS,
+                CalendarContract.Attendees.EVENT_ID },
+            null, null, null);
+
+        // Override the 'location' with the 'real' room, if we have one.
+        Log.d(TAG, "Num attendees: " + cursor.getCount());
+        while (cursor.moveToNext()) {
+          String attendeeName = cursor.getString(0);
+          int attendeeStatus = cursor.getInt(1);
+          String eventId = cursor.getString(2);
+          Log.d(TAG, "Attendee " + attendeeName + ", status " + attendeeStatus);
+          if (attendeeStatus != 1) {
+            Log.d(TAG, "Attendee " + attendeeName + " status != 1, skipping.");
+            continue;
+          }
+          if (attendeeName.startsWith("SYD-")) {
+            attendeeName = attendeeName.substring(4); // strip the SYD- prefix
+            for (EventDetails event : newEvents) {
+              if (event.id.equals(eventId)) {
+                event.room = attendeeName;
+              }
+            }
+          }
+        }
+        cursor.close();
+
+        for (EventDetails event : newEvents) {
+          Log.d(TAG, "-------------------------------");
+          Log.d(TAG, event.id + " - " + event.title);
+          Log.d(TAG, new Date(event.startTime).toString());
+          Log.d(TAG, event.room);
+        }
+        return newEvents;
+      }
+
+      @Override
+      protected void onPostExecute(ArrayList<EventDetails> result) {
+        releaseWakeLock();
+        onMeetingsLoaded(result);
+      }
+
+      @Override
+      protected void onCancelled() {
+        releaseWakeLock();
+      }
+
+      private void releaseWakeLock() {
+        if (wakeLock != null) {
+          wakeLock.release();
+          wakeLock = null;
+        }
+      }
+    }
+
+    private class EventDetails {
+      public String id;
+      public String title;
+      public String room;
+      public long startTime;
+
+      public EventDetails(String id, String title, String room, long startTime) {
+        this.id = id;
+        this.title = title;
+        this.room = room;
+        this.startTime = startTime;
       }
     }
   }

@@ -5,7 +5,7 @@ android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
     defaultConfig {
-        applicationId 'au.com.codeka.weather.wear'
+        applicationId 'au.com.codeka.weather'
         minSdkVersion 21
         targetSdkVersion 23
         versionCode 1
