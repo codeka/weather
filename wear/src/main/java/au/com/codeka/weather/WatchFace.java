@@ -25,7 +25,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.wearable.provider.WearableCalendarContract;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
-import android.text.TextPaint;
 import android.text.format.DateUtils;
 import android.text.format.Time;
 import android.util.Log;
@@ -90,7 +89,7 @@ public class WatchFace extends CanvasWatchFaceService {
     Paint textPaint;
     boolean ambient;
     Time time;
-    final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
+    final BroadcastReceiver timeZoneReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
         time.clear(intent.getStringExtra("time-zone"));
@@ -106,7 +105,7 @@ public class WatchFace extends CanvasWatchFaceService {
      */
     boolean lowBitAmbient;
 
-    private boolean isReceiverRegistered;
+    private boolean calendarChangedReceiverRegistered;
     private boolean calendarPermissionApproved;
     private String calendarNotApprovedMessage;
     private AsyncTask<Void, Void, ArrayList<EventDetails>> loadMeetingsTask;
@@ -163,11 +162,12 @@ public class WatchFace extends CanvasWatchFaceService {
       time = new Time();
     }
 
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver calendarChangedReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
         if (Intent.ACTION_PROVIDER_CHANGED.equals(intent.getAction())
             && WearableCalendarContract.CONTENT_URI.equals(intent.getData())) {
+          Log.i(TAG, "Calendar has changed, refreshing meeting list.");
           loadMeetingsHandler.sendEmptyMessage(MSG_LOAD_MEETINGS);
         }
       }
@@ -199,7 +199,7 @@ public class WatchFace extends CanvasWatchFaceService {
 
         if (!registeredTimeZoneReceiver) {
           IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
-          registerReceiver(mTimeZoneReceiver, filter);
+          registerReceiver(timeZoneReceiver, filter);
           registeredTimeZoneReceiver = true;
         }
 
@@ -208,24 +208,24 @@ public class WatchFace extends CanvasWatchFaceService {
             getApplicationContext(),
             Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED;
 
-        if (calendarPermissionApproved && !isReceiverRegistered) {
+        if (calendarPermissionApproved && !calendarChangedReceiverRegistered) {
           IntentFilter filter = new IntentFilter(Intent.ACTION_PROVIDER_CHANGED);
           filter.addDataScheme("content");
           filter.addDataAuthority(WearableCalendarContract.AUTHORITY, null);
-          registerReceiver(broadcastReceiver, filter);
-          isReceiverRegistered = true;
+          registerReceiver(calendarChangedReceiver, filter);
+          calendarChangedReceiverRegistered = true;
         }
 
         loadMeetingsHandler.sendEmptyMessage(MSG_LOAD_MEETINGS);
       } else {
         if (registeredTimeZoneReceiver) {
-          unregisterReceiver(mTimeZoneReceiver);
+          unregisterReceiver(timeZoneReceiver);
           registeredTimeZoneReceiver = false;
         }
 
-        if (isReceiverRegistered) {
-          unregisterReceiver(broadcastReceiver);
-          isReceiverRegistered = false;
+        if (calendarChangedReceiverRegistered) {
+          unregisterReceiver(calendarChangedReceiver);
+          calendarChangedReceiverRegistered = false;
         }
         loadMeetingsHandler.removeMessages(MSG_LOAD_MEETINGS);
       }
@@ -408,15 +408,17 @@ public class WatchFace extends CanvasWatchFaceService {
             (canvas.getHeight() / 2.0f) + (hhmmRealHeight / 2.0f),
             textPaint);
 
-        if (events != null && events.size() > 0) {
+        EventDetails event = getNextEvent();
+        if (event != null) {
           textPaint.setTextSize(hhmmHeight * 0.4f);
           textPaint.setColor(Color.YELLOW);
 
-          EventDetails event = events.get(0);
           Calendar cal = Calendar.getInstance();
           cal.setTimeInMillis(event.startTime);
           String title = String.format("%d:%02d %s",
-              cal.get(Calendar.HOUR), cal.get(Calendar.MINUTE), event.title);
+              cal.get(Calendar.HOUR) == 0 ? 12 : cal.get(Calendar.HOUR),
+              cal.get(Calendar.MINUTE),
+              event.title);
           title = ensureNoWiderThan(textPaint, title, canvas.getWidth() * 0.9f);
           float titleWidth = textPaint.measureText(title);
           canvas.drawText(
@@ -426,6 +428,16 @@ public class WatchFace extends CanvasWatchFaceService {
               textPaint);
 
           String room = event.room;
+          // strip SYD-ODI-1-, then SYD-ODI- (if it's on a different floor), then SYD- (if it's
+          // in a different building).
+          if (room.startsWith("SYD-ODI-1-")) {
+            room = room.substring(10);
+          } else if (room.startsWith("SYD-ODI-")) {
+            room = room.substring(8);
+          } else if (room.startsWith("SYD-")) {
+            room = room.substring(4);
+          }
+
           room = ensureNoWiderThan(textPaint, room, canvas.getWidth() * 0.8f);
           float roomWidth = textPaint.measureText(room);
           canvas.drawText(
@@ -437,6 +449,25 @@ public class WatchFace extends CanvasWatchFaceService {
       }
 
       textPaint.setTextSize(hhmmHeight);
+    }
+
+    /** Gets the next event in your calendar, or null if there are no upcoming events. */
+    private EventDetails getNextEvent() {
+      if (events == null) {
+        return null;
+      }
+
+      Date maxStartTime = new Date();
+      maxStartTime.setTime(maxStartTime.getTime() - 15 * 60 * 1000); // don't return events which started > 15 minutes ago
+      for (EventDetails event : events) {
+        if (new Date(event.startTime).before(maxStartTime)) {
+          continue;
+        }
+        return event;
+      }
+
+      // No events found.
+      return null;
     }
 
     private String ensureNoWiderThan(Paint textPaint, String str, float maxWidth) {
@@ -470,7 +501,6 @@ public class WatchFace extends CanvasWatchFaceService {
 
     private void onMeetingsLoaded(ArrayList<EventDetails> result) {
       if (result != null) {
-        Log.i(TAG, "meetings loaded: " + result.size());
         events = new ArrayList<>(result);
         invalidate();
       }
@@ -536,12 +566,8 @@ public class WatchFace extends CanvasWatchFaceService {
                 CalendarContract.Instances.DTSTART
             },
             null, null, null);
-        int numMeetings = cursor.getCount();
-        Log.i(TAG, "Num meetings: " + numMeetings);
-
-        String[] columnNames = cursor.getColumnNames();
-        for (int i = 0; i < columnNames.length; i++) {
-          Log.i(TAG, "Column[" + i + "] = " + columnNames[i]);
+        if (cursor == null) {
+          return null;
         }
 
         ArrayList<EventDetails> newEvents = new ArrayList<>();
@@ -554,17 +580,15 @@ public class WatchFace extends CanvasWatchFaceService {
           String location = cursor.getString(4);
           long startTime = cursor.getLong(5);
 
-          Log.d(TAG, "----------");
-          Log.d(TAG, "title: " + title);
           if (allDay) {
-            Log.d(TAG, "Event is all-day event, skipping.");
+            // Skip all-day events.
             continue;
           }
-          if (selfAttendeeStatus != 1) {
-            Log.d(TAG, "SelfAttendeeStatus != 1, skipping.");
+          if (selfAttendeeStatus != CalendarContract.Attendees.ATTENDEE_STATUS_ACCEPTED &&
+              selfAttendeeStatus != CalendarContract.Attendees.ATTENDEE_STATUS_NONE) {
+            // You've declined (or not accepted at least), skip.
             continue;
           }
-          Log.d(TAG, "self-attendee status: " + selfAttendeeStatus);
           newEvents.add(new EventDetails(eventId, title, location, startTime));
         }
         cursor.close();
@@ -576,20 +600,20 @@ public class WatchFace extends CanvasWatchFaceService {
                 CalendarContract.Attendees.ATTENDEE_STATUS,
                 CalendarContract.Attendees.EVENT_ID },
             null, null, null);
+        if (cursor == null) {
+          return newEvents;
+        }
 
         // Override the 'location' with the 'real' room, if we have one.
-        Log.d(TAG, "Num attendees: " + cursor.getCount());
         while (cursor.moveToNext()) {
           String attendeeName = cursor.getString(0);
           int attendeeStatus = cursor.getInt(1);
           String eventId = cursor.getString(2);
-          Log.d(TAG, "Attendee " + attendeeName + ", status " + attendeeStatus);
-          if (attendeeStatus != 1) {
-            Log.d(TAG, "Attendee " + attendeeName + " status != 1, skipping.");
+          if (attendeeStatus != CalendarContract.Attendees.ATTENDEE_STATUS_ACCEPTED) {
+            // Skip if they're not explicitly accepted.
             continue;
           }
           if (attendeeName.startsWith("SYD-")) {
-            attendeeName = attendeeName.substring(4); // strip the SYD- prefix
             for (EventDetails event : newEvents) {
               if (event.id.equals(eventId)) {
                 event.room = attendeeName;
@@ -599,12 +623,12 @@ public class WatchFace extends CanvasWatchFaceService {
         }
         cursor.close();
 
+        Log.d(TAG, "Meetings refreshed:");
         for (EventDetails event : newEvents) {
-          Log.d(TAG, "-------------------------------");
-          Log.d(TAG, event.id + " - " + event.title);
-          Log.d(TAG, new Date(event.startTime).toString());
-          Log.d(TAG, event.room);
+          Log.d(TAG, "[" + event.title + "] in " + event.room + " at "
+              + new Date(event.startTime).toString());
         }
+
         return newEvents;
       }
 
