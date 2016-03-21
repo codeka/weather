@@ -34,6 +34,8 @@ import android.view.WindowInsets;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -563,7 +565,7 @@ public class WatchFace extends CanvasWatchFaceService {
                 CalendarContract.Instances.ALL_DAY,
                 CalendarContract.Instances.SELF_ATTENDEE_STATUS,
                 CalendarContract.Instances.EVENT_LOCATION,
-                CalendarContract.Instances.DTSTART
+                CalendarContract.Instances.BEGIN,
             },
             null, null, null);
         if (cursor == null) {
@@ -589,7 +591,8 @@ public class WatchFace extends CanvasWatchFaceService {
             // You've declined (or not accepted at least), skip.
             continue;
           }
-          newEvents.add(new EventDetails(eventId, title, location, startTime));
+          EventDetails eventDetails = new EventDetails(eventId, title, location, startTime);
+          newEvents.add(eventDetails);
         }
         cursor.close();
 
@@ -622,6 +625,13 @@ public class WatchFace extends CanvasWatchFaceService {
           }
         }
         cursor.close();
+
+        Collections.sort(newEvents, new Comparator<EventDetails>() {
+          @Override
+          public int compare(EventDetails lhs, EventDetails rhs) {
+            return (int)(lhs.startTime - rhs.startTime);
+          }
+        });
 
         Log.d(TAG, "Meetings refreshed:");
         for (EventDetails event : newEvents) {
