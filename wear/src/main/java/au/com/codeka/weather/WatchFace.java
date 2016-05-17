@@ -412,7 +412,7 @@ public class WatchFace extends CanvasWatchFaceService {
 
         EventDetails event = getNextEvent();
         if (event != null) {
-          textPaint.setTextSize(hhmmHeight * 0.4f);
+          textPaint.setTextSize((int)(hhmmHeight * 0.4f));
           textPaint.setColor(Color.YELLOW);
 
           Calendar cal = Calendar.getInstance();
