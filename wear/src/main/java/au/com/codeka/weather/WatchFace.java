@@ -37,6 +37,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -344,13 +345,13 @@ public class WatchFace extends CanvasWatchFaceService {
       String hhmm = String.format("%d:%02d ", hour, time.minute);
       float hhmmWidth = textPaint.measureText(hhmm);
       float hhmmHeight = textPaint.getTextSize();
-      float hhmmRealHeight = hhmmHeight * 0.75f;
+      float hhmmRealHeight = (int)(hhmmHeight * 0.75f);
 
       String ampm = morning ? "am" : "pm";
       textPaint.setTextSize(hhmmHeight * 0.5f);
       float ampmHeight = textPaint.measureText(ampm);
 
-      textPaint.setTextSize(hhmmHeight * 0.5f);
+      textPaint.setTextSize((int)(hhmmHeight * 0.5f));
       String ss = String.format("%02d", time.second);
       float ssWidth = textPaint.measureText(ss);
 
@@ -373,14 +374,14 @@ public class WatchFace extends CanvasWatchFaceService {
         textPaint.setAlpha(120);
         textPaint.setStrokeWidth(2.0f);
         float y = (((canvas.getHeight() / 2.0f) - (hhmmRealHeight ) + ampmHeight) +
-            (hhmmHeight + (hhmmHeight * 0.6f))) / 2.0f;
+            (hhmmHeight + (int)(hhmmHeight * 0.6f))) / 2.0f;
         canvas.drawLine(0, y, canvas.getWidth(), y, textPaint);
         textPaint.setAlpha(255);
       }
 
       {
         setTextColor(R.color.date_text);
-        textPaint.setTextSize(hhmmHeight * 0.6f);
+        textPaint.setTextSize((int)(hhmmHeight * 0.6f));
         String day = getDayOfWeekName(time.weekDay);
         float dayWidth = textPaint.measureText(day);
         canvas.drawText(
@@ -395,7 +396,7 @@ public class WatchFace extends CanvasWatchFaceService {
         canvas.drawText(
             ddmmyy,
             (canvas.getWidth() / 2.0f) - (ddmmyyWidth / 2.0f),
-            hhmmHeight + (hhmmHeight * 0.6f),
+            hhmmHeight + (int)(hhmmHeight * 0.6f),
             textPaint);
 
         textPaint.setTextSize(hhmmHeight);
@@ -403,7 +404,7 @@ public class WatchFace extends CanvasWatchFaceService {
 
       if (!ambient) {
         setTextColor(R.color.time_text);
-        textPaint.setTextSize(hhmmHeight * 0.5f);
+        textPaint.setTextSize((int)((hhmmHeight * 0.5f)));
         canvas.drawText(
             ss,
             (canvas.getWidth() / 2.0f) - ((hhmmWidth + ssWidth) / 2.0f) + hhmmWidth,
@@ -417,7 +418,7 @@ public class WatchFace extends CanvasWatchFaceService {
 
           Calendar cal = Calendar.getInstance();
           cal.setTimeInMillis(event.startTime);
-          String title = String.format("%d:%02d %s",
+          String title = String.format(Locale.US, "%d:%02d %s",
               cal.get(Calendar.HOUR) == 0 ? 12 : cal.get(Calendar.HOUR),
               cal.get(Calendar.MINUTE),
               event.title);
@@ -445,7 +446,7 @@ public class WatchFace extends CanvasWatchFaceService {
           canvas.drawText(
               room,
               (canvas.getWidth() / 2.0f) - (roomWidth / 2.0f),
-              (canvas.getHeight() / 2.0f) + hhmmHeight + (hhmmHeight * 0.4f),
+              (canvas.getHeight() / 2.0f) + hhmmHeight + (int) (hhmmHeight * 0.4f),
               textPaint);
         }
       }
