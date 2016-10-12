@@ -297,12 +297,11 @@ public class WatchFace extends CanvasWatchFaceService {
           // The user has completed the tap gesture.
           tapCount++;
           if (!calendarPermissionApproved) {
-            //TODO
-            //Intent permissionIntent = new Intent(
-            //    getApplicationContext(),
-            //    CalendarWatchFacePermissionActivity.class);
-            //permissionIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            //startActivity(permissionIntent);
+            Intent permissionIntent = new Intent(
+                getApplicationContext(),
+                WeatherActivity.class);
+            permissionIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(permissionIntent);
           } else {
             backgroundPaint.setColor(resources.getColor(tapCount % 2 == 0 ?
                 R.color.background : R.color.background2));
