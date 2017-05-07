@@ -166,6 +166,10 @@ public class WeatherMapFragment extends Fragment {
   private final Runnable updateOverlayFrameRunnable = new Runnable() {
     @Override
     public void run() {
+      if (overlayBitmaps.size() == 0) {
+        return;
+      }
+
       BitmapDescriptor bitmapDescriptor =
           BitmapDescriptorFactory.fromBitmap(overlayBitmaps.get(overlayFrame));
       if (overlay == null) {

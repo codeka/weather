@@ -16,6 +16,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Date;
 
+import au.com.codeka.weather.BuildConfig;
 import au.com.codeka.weather.DebugLog;
 import au.com.codeka.weather.LenientDoubleTypeAdapter;
 import au.com.codeka.weather.model.CurrentCondition;
@@ -30,7 +31,7 @@ import au.com.codeka.weather.providers.Provider;
  */
 public class WundergroundProvider extends Provider {
   private static final String TAG = "codeka.weather";
-  private static final String API_KEY = "094ceebb0893481d";
+  private static final String API_KEY = BuildConfig.WUNDERGROUND_API_KEY;
 
   /** Fetches weather info from Weather Underground. */
   @Override
