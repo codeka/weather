@@ -550,8 +550,10 @@ public class WatchFace extends CanvasWatchFaceService {
       @Override
       protected ArrayList<EventDetails> doInBackground(Void... voids) {
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "WatchFaceWakeLock");
-        wakeLock.acquire();
+        if (powerManager != null) {
+          wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "weather:WatchFaceWakeLock");
+          wakeLock.acquire(10000);
+        }
 
         // include meetings that started 15 minutes ago
         long begin = System.currentTimeMillis() - (15 * 60 * 1000);
