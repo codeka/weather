@@ -54,6 +54,11 @@ public class WundergroundProvider extends Provider {
 
       JsonReader json = new JsonReader(new InputStreamReader(ins, "UTF-8"));
       WundergroundResponse response = gson.fromJson(json, WundergroundResponse.class);
+      if (response == null || response.currentObservation == null) {
+        Log.i(TAG, "Response is empty!");
+        DebugLog.current().log("Response is empty.");
+        return;
+      }
       Log.d(TAG, "Response parsed successfully.");
 
       long seconds = Long.parseLong(response.currentObservation.observationTime);
