@@ -21,7 +21,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.provider.CalendarContract;
-import android.support.v4.app.ActivityCompat;
+import androidx.core.app.ActivityCompat;
 import android.support.wearable.provider.WearableCalendarContract;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
@@ -430,13 +430,13 @@ public class WatchFace extends CanvasWatchFaceService {
               textPaint);
 
           String room = event.room;
-          // strip SYD-ODI-1-, then SYD-ODI- (if it's on a different floor), then SYD- (if it's
+          // strip MTV-1600-1-, then MTV-1600- (if it's on a different floor), then MTV- (if it's
           // in a different building).
-          if (room.startsWith("SYD-ODI-1-")) {
-            room = room.substring(10);
-          } else if (room.startsWith("SYD-ODI-")) {
-            room = room.substring(8);
-          } else if (room.startsWith("SYD-")) {
+          if (room.startsWith("MTV-1600-1-")) {
+            room = room.substring(11);
+          } else if (room.startsWith("MTV-1600-")) {
+            room = room.substring(9);
+          } else if (room.startsWith("MTV-")) {
             room = room.substring(4);
           }
 
@@ -618,7 +618,7 @@ public class WatchFace extends CanvasWatchFaceService {
             // Skip if they're not explicitly accepted.
             continue;
           }
-          if (attendeeName.startsWith("SYD-")) {
+          if (attendeeName.startsWith("MTV-")) {
             for (EventDetails event : newEvents) {
               if (event.id.equals(eventId)) {
                 event.room = attendeeName;

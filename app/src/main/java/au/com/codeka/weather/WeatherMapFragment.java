@@ -4,16 +4,16 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.github.florent37.materialviewpager.MaterialViewPagerHelper;
-import com.github.ksoichiro.android.observablescrollview.ObservableScrollView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -36,7 +36,7 @@ import au.com.codeka.weather.model.WeatherInfo;
  */
 public class WeatherMapFragment extends Fragment {
   private FrameLayout refreshButton;
-  private ObservableScrollView scrollView;
+  private NestedScrollView scrollView;
   private SupportMapFragment mapFragment;
   private GoogleMap map;
 
@@ -57,8 +57,8 @@ public class WeatherMapFragment extends Fragment {
       ViewGroup container,
       Bundle savedInstanceState) {
     View rootView = inflater.inflate(R.layout.weather_map_layout, container, false);
-    scrollView = (ObservableScrollView) rootView.findViewById(R.id.scroll_view);
-    refreshButton = (FrameLayout) rootView.findViewById(R.id.refresh_button);
+    scrollView = rootView.findViewById(R.id.scroll_view);
+    refreshButton = rootView.findViewById(R.id.refresh_button);
 
     mapFragment = new SupportMapFragment();
     FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
@@ -99,7 +99,7 @@ public class WeatherMapFragment extends Fragment {
 
   @Override
   public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-    MaterialViewPagerHelper.registerScrollView(getActivity(), scrollView, null);
+    MaterialViewPagerHelper.registerScrollView(getContext(), scrollView);
   }
 
   /**

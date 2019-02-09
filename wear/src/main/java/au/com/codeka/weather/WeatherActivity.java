@@ -3,7 +3,7 @@ package au.com.codeka.weather;
 import android.Manifest;
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
+import androidx.core.app.ActivityCompat;
 import android.support.wearable.view.WatchViewStub;
 import android.widget.TextView;
 

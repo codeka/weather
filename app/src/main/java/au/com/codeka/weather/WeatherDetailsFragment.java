@@ -1,8 +1,9 @@
 package au.com.codeka.weather;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
+import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +13,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.github.florent37.materialviewpager.MaterialViewPagerHelper;
-import com.github.ksoichiro.android.observablescrollview.ObservableScrollView;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -29,7 +29,7 @@ import au.com.codeka.weather.model.WeatherInfo;
  */
 public class WeatherDetailsFragment extends Fragment {
   private View rootView;
-  private ObservableScrollView scrollView;
+  private NestedScrollView scrollView;
 
   @Override
   public View onCreateView(
@@ -38,7 +38,7 @@ public class WeatherDetailsFragment extends Fragment {
       Bundle savedInstanceState) {
     rootView = inflater.inflate(
         R.layout.weather_details_fragment, container, false);
-    scrollView = (ObservableScrollView) rootView.findViewById(R.id.scroll_view);
+    scrollView = rootView.findViewById(R.id.scroll_view);
 
     return rootView;
   }
@@ -133,8 +133,7 @@ public class WeatherDetailsFragment extends Fragment {
       hourlyParent.addView(hourlyForecastView);
     }
 
-    CardLinearLayout forecastParent =
-        (CardLinearLayout) rootView.findViewById(R.id.weather_cards);
+    CardLinearLayout forecastParent = rootView.findViewById(R.id.weather_cards);
      // Remove any views after the HorizontalScrollView, since they'll be old entries
     for (int i = 0; i < forecastParent.getChildCount(); i++) {
       if (forecastParent.getChildAt(i) instanceof HorizontalScrollView) {
@@ -172,7 +171,7 @@ public class WeatherDetailsFragment extends Fragment {
 
   @Override
   public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-    MaterialViewPagerHelper.registerScrollView(getActivity(), scrollView, null);
+    MaterialViewPagerHelper.registerScrollView(getContext(), scrollView);
   }
 
   // Called when the weather updates.

@@ -1,6 +1,6 @@
 package au.com.codeka.weather.providers.wunderground;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
 
