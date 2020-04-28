@@ -1,3 +1,7 @@
+# WARNING - THE APP IS CURRENTLY BROKEN
+
+See [#3](https://github.com/codeka/weather/issues/3), but basically after [weather underground shut down their API](https://apicommunity.wunderground.com/weatherapi/topics/end-of-service-for-the-weather-underground-api), we broke.
+
 # Android Weather Widget
 
 Pretty basic weather widget, has just the features I want and nothing else. Uses Weather
