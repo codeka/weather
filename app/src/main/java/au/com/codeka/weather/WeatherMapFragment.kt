@@ -4,12 +4,14 @@ import android.app.Activity
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
+import au.com.codeka.weather.model.MapOverlay
 import au.com.codeka.weather.model.WeatherInfo
 import com.github.florent37.materialviewpager.MaterialViewPagerHelper
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -24,6 +26,10 @@ import java.util.*
  * Fragment which displays a map with some weather info overlayed over it.
  */
 class WeatherMapFragment : Fragment() {
+  companion object {
+    private const val TAG = "codeka.weather"
+  }
+
   private var refreshButton: FrameLayout? = null
   private var scrollView: NestedScrollView? = null
   private var mapFragment: SupportMapFragment? = null
@@ -35,8 +41,9 @@ class WeatherMapFragment : Fragment() {
   private var overlay: GroundOverlay? = null
   private var overlayLatLngBounds: LatLngBounds? = null
   private var needsReposition = false
-  private var overlayBitmaps: MutableList<Bitmap?>? = null
+  private var mapOverlays: ArrayList<MapOverlay> = arrayListOf()
   private var overlayFrame = 0
+
   override fun onCreateView(
       inflater: LayoutInflater,
       container: ViewGroup?,
@@ -48,10 +55,10 @@ class WeatherMapFragment : Fragment() {
     val fragmentTransaction = childFragmentManager.beginTransaction()
     fragmentTransaction.replace(R.id.map, mapFragment!!)
     fragmentTransaction.commit()
-    refreshButton!!.setOnClickListener(View.OnClickListener { refreshOverlay() })
-    refreshButton!!.setClickable(false)
+    refreshButton!!.setOnClickListener { refreshOverlay() }
+    refreshButton!!.isClickable = false
     mapFragment!!.getMapAsync(OnMapReadyCallback { googleMap -> // Start off at the weather location
-      val weatherInfo: WeatherInfo = WeatherManager.Companion.i.getCurrentWeather(activity)
+      val weatherInfo: WeatherInfo = WeatherManager.i.getCurrentWeather(activity)
           ?: // TODO: refresh once it loads
           return@OnMapReadyCallback
       val latlng = LatLng(weatherInfo.lat, weatherInfo.lng)
@@ -90,6 +97,7 @@ class WeatherMapFragment : Fragment() {
       needsRefresh = true
       return
     }
+
     overlayLatLngBounds = map!!.projection.visibleRegion.latLngBounds
     Thread(overlayUpdateRunnable).start()
   }
@@ -97,17 +105,11 @@ class WeatherMapFragment : Fragment() {
   private val overlayUpdateRunnable = Runnable {
     overlayLoading = true
     activity!!.runOnUiThread(updateRefreshButtonRunnable)
-    val ins: InputStream = WeatherManager.Companion.i.fetchMapOverlay(
-        overlayLatLngBounds,
+    mapOverlays = WeatherManager.i.fetchMapOverlay(
+        overlayLatLngBounds!!,
         mapFragment!!.view!!.width / 2,
         mapFragment!!.view!!.height / 2)
         ?: return@Runnable
-    val gifDecoder = GifDecoder()
-    gifDecoder.read(ins)
-    overlayBitmaps = ArrayList()
-    for (frame in 0 until gifDecoder.frameCount) {
-      overlayBitmaps!!.add(gifDecoder.getFrame(frame))
-    }
     overlayLoading = false
     needsReposition = true
 
@@ -115,16 +117,24 @@ class WeatherMapFragment : Fragment() {
     val activity: Activity? = activity
     activity?.runOnUiThread(updateOverlayFrameRunnable)
   }
+
   private val updateOverlayFrameRunnable: Runnable = object : Runnable {
     override fun run() {
-      if (overlayBitmaps!!.size == 0) {
+      if (mapOverlays.size == 0) {
         return
       }
-      val bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(overlayBitmaps!![overlayFrame])
+      val bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(mapOverlays[overlayFrame].bitmap)
       if (overlay == null) {
-        overlay = map!!.addGroundOverlay(GroundOverlayOptions()
-            .positionFromBounds(overlayLatLngBounds)
-            .image(bitmapDescriptor))
+        val overlayOptions = GroundOverlayOptions()
+            .image(bitmapDescriptor)
+        if (mapOverlays[overlayFrame].latLngBounds != null) {
+          overlayOptions.positionFromBounds(overlayLatLngBounds)
+        } else {
+          Log.i(TAG, "fitting to latlng + widthMeters")
+          overlayOptions.position(
+              mapOverlays[overlayFrame].latLng, mapOverlays[overlayFrame].widthMeters!!)
+        }
+        overlay = map!!.addGroundOverlay(overlayOptions)
       } else {
         overlay!!.setImage(bitmapDescriptor)
       }
@@ -133,7 +143,7 @@ class WeatherMapFragment : Fragment() {
         needsReposition = false
       }
       overlayFrame++
-      if (overlayFrame >= overlayBitmaps!!.size) {
+      if (overlayFrame >= mapOverlays.size) {
         overlayFrame = 0
       }
 
@@ -143,6 +153,7 @@ class WeatherMapFragment : Fragment() {
       updateRefreshButtonRunnable.run()
     }
   }
+
   private val updateRefreshButtonRunnable = Runnable {
     if (overlayLoading) {
       refreshButton!!.isClickable = false

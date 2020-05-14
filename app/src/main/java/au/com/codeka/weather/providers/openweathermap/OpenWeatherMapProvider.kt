@@ -5,8 +5,7 @@ import au.com.codeka.weather.BuildConfig
 import au.com.codeka.weather.DebugLog
 import au.com.codeka.weather.LenientDoubleTypeAdapter
 import au.com.codeka.weather.model.*
-import au.com.codeka.weather.providers.Provider
-import com.google.android.gms.maps.model.LatLngBounds
+import au.com.codeka.weather.providers.WeatherProvider
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
 import com.google.gson.stream.JsonReader
@@ -16,7 +15,7 @@ import java.io.InputStreamReader
 import java.net.URL
 import java.util.*
 
-class OpenWeatherMapProvider : Provider() {
+class OpenWeatherMapProvider : WeatherProvider {
   companion object {
     private const val TAG = "codeka.weather"
     private const val API_KEY = BuildConfig.OPENWEATHERMAP_API_KEY
@@ -79,10 +78,5 @@ class OpenWeatherMapProvider : Provider() {
       Log.e(TAG, "Error fetching weather information.", e)
       DebugLog.current().log("Error fetching weather: " + e.message)
     }
-  }
-
-  override fun fetchMapOverlay(latLngBounds: LatLngBounds?, width: Int, height: Int): InputStream? {
-    // TODO("Not yet implemented")
-    return null
   }
 }

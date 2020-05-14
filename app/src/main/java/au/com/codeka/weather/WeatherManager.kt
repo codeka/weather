@@ -6,8 +6,10 @@ import android.location.Location
 import android.util.Log
 import au.com.codeka.weather.location.GeocodeProvider
 import au.com.codeka.weather.location.LocationProvider
+import au.com.codeka.weather.model.MapOverlay
 import au.com.codeka.weather.model.WeatherInfo
 import au.com.codeka.weather.providers.openweathermap.OpenWeatherMapProvider
+import au.com.codeka.weather.providers.rainviewer.RainViewerProvider
 import au.com.codeka.weather.providers.wunderground.WundergroundProvider
 import com.google.android.gms.maps.model.LatLngBounds
 import java.io.InputStream
@@ -61,8 +63,8 @@ class WeatherManager private constructor() {
   }
 
   /** Fetches an image to overlay over a map. Must be called on a background thread.  */
-  fun fetchMapOverlay(latLngBounds: LatLngBounds?, width: Int, height: Int): InputStream? {
-    return WundergroundProvider().fetchMapOverlay(latLngBounds, width, height)
+  fun fetchMapOverlay(latLngBounds: LatLngBounds, width: Int, height: Int): ArrayList<MapOverlay> {
+    return RainViewerProvider().fetchMapOverlay(latLngBounds, width, height)
   }
 
   /**

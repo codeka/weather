@@ -3,9 +3,11 @@ package au.com.codeka.weather.providers.wunderground
 import android.util.Log
 import au.com.codeka.weather.BuildConfig
 import au.com.codeka.weather.DebugLog
+import au.com.codeka.weather.GifDecoder
 import au.com.codeka.weather.LenientDoubleTypeAdapter
 import au.com.codeka.weather.model.*
-import au.com.codeka.weather.providers.Provider
+import au.com.codeka.weather.providers.MapOverlayProvider
+import au.com.codeka.weather.providers.WeatherProvider
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
@@ -20,7 +22,7 @@ import java.util.*
 /**
  * Provider for fetching weather details from weather underground.
  */
-class WundergroundProvider : Provider() {
+class WundergroundProvider : WeatherProvider, MapOverlayProvider {
   /** Fetches weather info from Weather Underground.  */
   override fun fetchWeather(builder: WeatherInfo.Builder) {
     val gson = GsonBuilder()
@@ -39,7 +41,7 @@ class WundergroundProvider : Provider() {
       val ins: InputStream = BufferedInputStream(conn.getInputStream())
       val json = JsonReader(InputStreamReader(ins, "UTF-8"))
       val response = gson.fromJson<WundergroundResponse>(json, WundergroundResponse::class.java)
-      if (response == null || response.currentObservation == null) {
+      if (response?.currentObservation == null) {
         Log.i(TAG, "Response is empty!")
         DebugLog.current()!!.log("Response is empty.")
         return
@@ -86,21 +88,32 @@ class WundergroundProvider : Provider() {
     }
   }
 
-  override fun fetchMapOverlay(latLngBounds: LatLngBounds?, width: Int, height: Int): InputStream? {
+  override fun fetchMapOverlay(latLngBounds: LatLngBounds, width: Int, height: Int): ArrayList<MapOverlay> {
     return try {
       val url = URL(String.format("http://api.wunderground.com/api/%s/animatedradar/image.gif?"
           + "minlat=%f&minlon=%f&maxlat=%f&maxlon=%f&width=%d&height=%d&timelabel=1&"
           + "timelabel.x=%d&timelabel.y=40&reproj.automerc=1&num=10&delay=50",
-          API_KEY, latLngBounds!!.southwest.latitude, latLngBounds.southwest.longitude,
+          API_KEY, latLngBounds.southwest.latitude, latLngBounds.southwest.longitude,
           latLngBounds.northeast.latitude, latLngBounds.northeast.longitude,
           width, height, width - 120))
       Log.d(TAG, "Connecting to: $url")
       val conn = url.openConnection()
-      BufferedInputStream(conn.getInputStream())
+      val ins = BufferedInputStream(conn.getInputStream())
+
+      val gifDecoder = GifDecoder()
+      gifDecoder.read(ins)
+      val overlayBitmaps = ArrayList<MapOverlay>()
+      for (frame in 0 until gifDecoder.frameCount) {
+        val overlay = MapOverlay(gifDecoder.getFrame(frame)!!, Date())
+        overlay.latLngBounds = latLngBounds
+        overlayBitmaps.add(overlay)
+      }
+
+      overlayBitmaps
     } catch (e: IOException) {
       Log.e(TAG, "Error fetching weather information.", e)
       DebugLog.current()!!.log("Error fetching weather: " + e.message)
-      null
+      arrayListOf()
     }
   }
 
