@@ -1,11 +1,9 @@
-package au.com.codeka.weather.model;
+package au.com.codeka.weather.model
 
-import au.com.codeka.weather.R;
+import au.com.codeka.weather.R
 
-/**
- * Enumeration of all the weather icons we support.
- */
-public enum WeatherIcon {
+/** Enumeration of all the weather icons we support. */
+enum class WeatherIcon {
   STORM(
       R.drawable.weather_storm,
       R.drawable.weather_storm_small,
@@ -68,46 +66,46 @@ public enum WeatherIcon {
       R.drawable.weather_cloudy_small,
       "cloudy.jpg");
 
-  private int largeIconId;
-  private int smallIconId;
-  private int largeNightIconId;
-  private int smallNightIconId;
-  private String headerAssetName;
-  private String headerNightAssetName;
+  private var largeIconId: Int
+  private var smallIconId: Int
+  private var largeNightIconId: Int
+  private var smallNightIconId: Int
+  private var headerAssetName: String
+  private var headerNightAssetName: String
 
-  WeatherIcon(int largeIconId, int smallIconId, String headerAssetName) {
-    this.largeIconId = largeIconId;
-    this.smallIconId = smallIconId;
-    this.headerAssetName = headerAssetName;
-    this.largeNightIconId = largeIconId;
-    this.smallNightIconId = smallIconId;
-    this.headerNightAssetName = headerAssetName;
+  constructor(largeIconId: Int, smallIconId: Int, headerAssetName: String) {
+    this.largeIconId = largeIconId
+    this.smallIconId = smallIconId
+    this.headerAssetName = headerAssetName
+    largeNightIconId = largeIconId
+    smallNightIconId = smallIconId
+    headerNightAssetName = headerAssetName
   }
 
-  WeatherIcon(
-      int largeIconId,
-      int smallIconId,
-      String headerAssetName,
-      int largeNightIconId,
-      int smallNightIconId,
-      String headerNightAssetName) {
-    this.largeIconId = largeIconId;
-    this.smallIconId = smallIconId;
-    this.headerAssetName = headerAssetName;
-    this.largeNightIconId = largeNightIconId;
-    this.smallNightIconId = smallNightIconId;
-    this.headerNightAssetName = headerNightAssetName;
+  constructor(
+      largeIconId: Int,
+      smallIconId: Int,
+      headerAssetName: String,
+      largeNightIconId: Int,
+      smallNightIconId: Int,
+      headerNightAssetName: String) {
+    this.largeIconId = largeIconId
+    this.smallIconId = smallIconId
+    this.headerAssetName = headerAssetName
+    this.largeNightIconId = largeNightIconId
+    this.smallNightIconId = smallNightIconId
+    this.headerNightAssetName = headerNightAssetName
   }
 
-  public int getLargeIconId(boolean isNight) {
-    return isNight ? largeNightIconId : largeIconId;
+  fun getLargeIconId(isNight: Boolean): Int {
+    return if (isNight) largeNightIconId else largeIconId
   }
 
-  public int getSmallIconId(boolean isNight) {
-    return isNight ? smallNightIconId : smallIconId;
+  fun getSmallIconId(isNight: Boolean): Int {
+    return if (isNight) smallNightIconId else smallIconId
   }
 
-  public String getHeaderAssetName(boolean isNight) {
-    return isNight ? headerNightAssetName : headerAssetName;
+  fun getHeaderAssetName(isNight: Boolean): String {
+    return if (isNight) headerNightAssetName else headerAssetName
   }
 }

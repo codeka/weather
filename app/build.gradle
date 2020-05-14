@@ -1,22 +1,28 @@
-apply plugin: 'com.android.application'
+repositories {
+  mavenCentral()
+}
 
-def getPropertyValue(String property) {
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+static def getPropertyValue(String property) {
   try {
     Properties properties = new Properties()
     properties.load(new FileInputStream("local.properties"))
     return "\"" + properties.getProperty(property) + "\""
-  } catch (e) {
+  } catch (ignored) {
     return "\"\"";
   }
 }
 
 android {
-  compileSdkVersion 28
+  compileSdkVersion 29
 
   defaultConfig {
     applicationId "au.com.codeka.weather"
     minSdkVersion 19
-    targetSdkVersion 28
+    targetSdkVersion 29
   }
 
   buildTypes {
@@ -34,10 +40,13 @@ android {
 dependencies {
   implementation 'androidx.legacy:legacy-support-v4:1.0.0'
   implementation 'androidx.palette:palette:1.0.0'
-  implementation 'com.google.android.gms:play-services-maps:16.1.0'
-  implementation 'com.google.code.gson:gson:2.8.2'
+  implementation 'com.google.android.gms:play-services-maps:17.0.0'
+  implementation 'com.google.code.gson:gson:2.8.6'
   implementation('com.github.florent37:materialviewpager:1.2.3@aar') {
     transitive = true
   }
+
+  implementation "androidx.core:core-ktx:1.2.0"
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
   wearApp project(':wear')
 }
