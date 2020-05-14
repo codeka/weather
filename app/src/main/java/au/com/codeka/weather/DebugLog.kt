@@ -10,15 +10,16 @@ import java.util.*
 object DebugLog {
   private val TAG = DebugLog::class.java.simpleName
   private var currentEntryBuilder: EntryBuilder? = null
-  fun current(): EntryBuilder? {
+
+  fun current(): EntryBuilder {
     if (currentEntryBuilder == null) {
       currentEntryBuilder = EntryBuilder()
     }
-    return currentEntryBuilder
+    return currentEntryBuilder!!
   }
 
   fun saveCurrent(context: Context) {
-    val entry = current()!!.build()
+    val entry = current().build()
     currentEntryBuilder = null
     val cacheDir = File(context.cacheDir, "logs")
     cacheDir.mkdirs()
@@ -60,13 +61,13 @@ object DebugLog {
     return entries
   }
 
-  /** An entry in the activity log is basically everything that happens in response to the alarm.  */
+  /** An entry in the activity log is basically everything that happens in response to the alarm. */
   class Entry {
     var timestamp: Long = 0
     var millisToNextAlarm: Long = 0
     var lat = 0.0
     var lng = 0.0
-    lateinit var logs: Array<LogEntry?>
+    var logs: Array<LogEntry?>? = null
 
     fun hasLocation(): Boolean {
       return lat != 0.0 && lng != 0.0
@@ -86,20 +87,21 @@ object DebugLog {
 
   class EntryBuilder {
     private val entry: Entry
+
     fun log(msg: String?): EntryBuilder {
       if (entry.logs == null) {
         entry.logs = arrayOfNulls(1)
       } else {
-        val newEntries = arrayOfNulls<LogEntry>(entry.logs.size + 1)
-        for (i in entry.logs.indices) {
-          newEntries[i] = entry.logs[i]
+        val newEntries = arrayOfNulls<LogEntry>(entry.logs!!.size + 1)
+        for (i in entry.logs!!.indices) {
+          newEntries[i] = entry.logs!![i]
         }
         entry.logs = newEntries
       }
       val logEntry = LogEntry()
       logEntry.timestamp = System.currentTimeMillis()
       logEntry.message = msg
-      entry.logs[entry.logs.size - 1] = logEntry
+      entry.logs!![entry.logs!!.size - 1] = logEntry
       return this
     }
 

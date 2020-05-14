@@ -59,7 +59,7 @@ class WeatherDetailsFragment : Fragment() {
           ?: 0.0).roundToInt())
     }
     (rootView!!.findViewById<View>(R.id.current_description) as TextView).text = currentCondition.description
-    (rootView!!.findViewById<View>(R.id.observation_location) as TextView).text = String.format("at %s", currentCondition.observationLocation)
+    (rootView!!.findViewById<View>(R.id.observation_location) as TextView).text = String.format("at %s", currentCondition.observationLocation ?: weatherInfo.geocodeInfo?.longName ?: "??")
     val now = Date()
     val millis = now.time - currentCondition.observationTime!!.time
     (rootView!!.findViewById<View>(R.id.observation_time) as TextView).text = String.format("%d minutes ago", millis / 60000L)

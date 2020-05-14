@@ -19,7 +19,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.palette.graphics.Palette
-import au.com.codeka.weather.model.WeatherInfo
 import com.github.florent37.materialviewpager.MaterialViewPager
 import com.github.florent37.materialviewpager.header.HeaderDesign
 import java.io.IOException
@@ -27,12 +26,13 @@ import java.util.*
 import kotlin.math.roundToInt
 
 class WeatherActivity : AppCompatActivity() {
-  private var drawer: DrawerLayout? = null
-  private var drawerToggle: ActionBarDrawerToggle? = null
-  private var toolbar: Toolbar? = null
-  private var viewPager: MaterialViewPager? = null
-  private var pagerAdapter: WeatherPagerAdapter? = null
-  private var pagerListener: WeatherPagerListener? = null
+  private lateinit var drawer: DrawerLayout
+  private lateinit var drawerToggle: ActionBarDrawerToggle
+  private lateinit var toolbar: Toolbar
+  private lateinit var viewPager: MaterialViewPager
+  private lateinit var pagerAdapter: WeatherPagerAdapter
+  private lateinit var pagerListener: WeatherPagerListener
+
   public override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.weather_activity)
@@ -41,7 +41,7 @@ class WeatherActivity : AppCompatActivity() {
     // Instantiate a ViewPager and a PagerAdapter.
     viewPager = findViewById<View>(R.id.view_pager) as MaterialViewPager
     drawer = findViewById<View>(R.id.drawer_layout) as DrawerLayout
-    toolbar = viewPager!!.toolbar
+    toolbar = viewPager.toolbar
     drawerToggle = ActionBarDrawerToggle(this, drawer, 0, 0)
     setSupportActionBar(toolbar)
     val actionBar = supportActionBar
@@ -52,12 +52,12 @@ class WeatherActivity : AppCompatActivity() {
       actionBar.setDisplayUseLogoEnabled(false)
       actionBar.setHomeButtonEnabled(true)
     }
-    drawer!!.setDrawerListener(drawerToggle)
+    drawer.addDrawerListener(drawerToggle)
     pagerAdapter = WeatherPagerAdapter(supportFragmentManager)
     pagerListener = WeatherPagerListener()
-    viewPager!!.viewPager.adapter = pagerAdapter
-    viewPager!!.setMaterialViewPagerListener(pagerListener)
-    viewPager!!.pagerTitleStrip.setViewPager(viewPager!!.viewPager)
+    viewPager.viewPager.adapter = pagerAdapter
+    viewPager.setMaterialViewPagerListener(pagerListener)
+    viewPager.pagerTitleStrip.setViewPager(viewPager.viewPager)
     val weatherInfo = WeatherManager.i.getCurrentWeather(this@WeatherActivity)
     if (weatherInfo?.currentCondition == null) {
       WeatherManager.i.refreshWeather(this, true)
@@ -70,7 +70,7 @@ class WeatherActivity : AppCompatActivity() {
 
   override fun onPostCreate(savedInstanceState: Bundle?) {
     super.onPostCreate(savedInstanceState)
-    drawerToggle!!.syncState()
+    drawerToggle.syncState()
   }
 
   override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -93,13 +93,13 @@ class WeatherActivity : AppCompatActivity() {
         showDebugLogActivity()
         true
       }
-      else -> drawerToggle!!.onOptionsItemSelected(item) ||
+      else -> drawerToggle.onOptionsItemSelected(item) ||
           super.onOptionsItemSelected(item)
     }
   }
 
   private fun refreshWeather() {
-    WeatherManager.Companion.i.refreshWeather(this, true)
+    WeatherManager.i.refreshWeather(this, true)
   }
 
   private fun showDebugActivity() {
@@ -170,7 +170,7 @@ class WeatherActivity : AppCompatActivity() {
       }
       when (page) {
         0 -> {
-          (viewPager!!.findViewById<View>(R.id.header) as TextView).text = String.format(
+          (viewPager.findViewById<View>(R.id.header) as TextView).text = String.format(
               Locale.ENGLISH,
               "%d °C %s",
               (currentCondition.temperature ?: 0.0).roundToInt(),
@@ -179,7 +179,7 @@ class WeatherActivity : AppCompatActivity() {
               color, BitmapDrawable(resources, bitmap))
         }
         1 -> {
-          (viewPager!!.findViewById<View>(R.id.header) as TextView).text = "Weather Map"
+          (viewPager.findViewById<View>(R.id.header) as TextView).text = "Weather Map"
           return HeaderDesign.fromColorAndDrawable(
               color, BitmapDrawable(resources, bitmap))
         }

@@ -27,6 +27,7 @@ class CurrentCondition {
 
   class Builder {
     private val currentCondition: CurrentCondition
+
     fun setObservationLocation(location: String?): Builder {
       currentCondition.observationLocation = location
       return this

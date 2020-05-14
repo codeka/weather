@@ -1,68 +1,39 @@
 package au.com.codeka.weather.location
 
-/** POKO object that represents the results of a Google Maps reverse-Geocode.  */
-// a bunch of these, which we can ignore for now.
-class GeocodeInfo {
-  lateinit var results: Array<SingleResult>
-  val status: String? = null
+import android.location.Address
 
-  fun findResult(type: String?): SingleResult? {
-    for (i in results.indices) {
-      if (results[i].isType(type)) {
-        return results[i]
-      }
+class GeocodeInfo {
+  private val addresses = ArrayList<GeocodeAddress>()
+
+  constructor(result: List<Address>) {
+    for (addr in result) {
+      addresses.add(GeocodeAddress(addr))
     }
-    return null
   }
 
   val longName: String?
-    get() {
-      var longResult = findResult("route")
-      if (longResult == null) {
-        longResult = findResult("street_address")
-      }
-      return longResult?.formattedAddress
-    }
+    get() = "${addresses[0].featureName} ${addresses[0].thoroughfare}, ${addresses[0].locality}"
 
   val shortName: String?
-    get() {
-      val shortResult = findResult("locality")
-      if (shortResult != null) {
-        val addrComponents = shortResult.addressComponents
-        var shortName = addrComponents[0].shortName
-        if (addrComponents.size > 1) {
-          shortName += ", " + addrComponents[1].shortName
-        }
-        return shortName
-      }
-      return null
-    }
+    get() = addresses[0].locality
 
   override fun toString(): String {
-    return longName!!
+    return longName ?: "??"
   }
 
-  class SingleResult {
-    lateinit var addressComponents: Array<AddressComponent>
-    var formattedAddress: String? = null
-
-    // geometry is ignored, we don't care
-    lateinit var types: Array<String>
-
-    fun isType(type: String?): Boolean {
-      for (i in types.indices) {
-        if (types[0].equals(type, ignoreCase = true)) {
-          return true
-        }
-      }
-      return false
-    }
-  }
-
-  class AddressComponent {
-    val longName: String? = null
-    val shortName: String? = null
-    lateinit var types: Array<String>
-
+  private class GeocodeAddress(addr: Address) {
+    var adminArea = addr.adminArea
+    var countryCode = addr.countryCode
+    var countryName = addr.countryName
+    var featureName = addr.featureName
+    var locale = addr.locale
+    var locality = addr.locality
+    var phone = addr.phone
+    var postalCode = addr.postalCode
+    var premises = addr.premises
+    var subAdminArea = addr.subAdminArea
+    var subLocality = addr.subLocality
+    var subThoroughfare = addr.subThoroughfare
+    var thoroughfare = addr.thoroughfare
   }
 }

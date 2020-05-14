@@ -23,6 +23,13 @@ android {
     applicationId "au.com.codeka.weather"
     minSdkVersion 19
     targetSdkVersion 29
+    multiDexEnabled true
+  }
+
+  compileOptions {
+    coreLibraryDesugaringEnabled true
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
   }
 
   buildTypes {
@@ -30,14 +37,20 @@ android {
       minifyEnabled false
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
       buildConfigField "String", "WUNDERGROUND_API_KEY", getPropertyValue("wundergroundApiKey")
+      buildConfigField "String", "OPENWEATHERMAP_API_KEY", getPropertyValue("openWeatherMapApiKey")
+      buildConfigField "String", "GOOGLE_API_KEY", getPropertyValue("googleApiKey")
     }
     debug {
       buildConfigField "String", "WUNDERGROUND_API_KEY", getPropertyValue("wundergroundApiKey")
+      buildConfigField "String", "OPENWEATHERMAP_API_KEY", getPropertyValue("openWeatherMapApiKey")
+      buildConfigField "String", "GOOGLE_API_KEY", getPropertyValue("googleApiKey")
     }
   }
 }
 
 dependencies {
+  coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.5'
+
   implementation 'androidx.legacy:legacy-support-v4:1.0.0'
   implementation 'androidx.palette:palette:1.0.0'
   implementation 'com.google.android.gms:play-services-maps:17.0.0'

@@ -58,20 +58,17 @@ class DebugLogActivity : AppCompatActivity() {
       return position.toLong()
     }
 
-    override fun getView(position: Int, convertView: View, parent: ViewGroup): View {
-      var view = convertView
-      if (view == null) {
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+      val view = convertView ?: run {
         val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        view = inflater.inflate(R.layout.activity_log_row, parent, false)
+        inflater.inflate(R.layout.activity_log_row, parent, false)
       }
       val entry = entries[position]
       val logs = StringBuilder()
-      if (entry.logs != null) {
-        for (log in entry.logs) {
-          logs.append(String.format("%8.2fs %s\n",
-              (log?.timestamp ?: 0.0f - entry.timestamp) as Float / 1000.0f,
-              log?.message))
-        }
+      for (log in entry.logs!!) {
+        logs.append(String.format("%8.2fs %s\n",
+            (log?.timestamp ?: 0L - entry.timestamp).toFloat() / 1000.0f,
+            log?.message))
       }
       (view.findViewById<View>(R.id.timestamp) as TextView).text = DATE_FORMAT.format(Date(entry.timestamp))
       if (entry.hasLocation()) {
@@ -86,8 +83,7 @@ class DebugLogActivity : AppCompatActivity() {
         view.findViewById<View>(R.id.next_timestamp).visibility = View.GONE
       } else {
         view.findViewById<View>(R.id.next_timestamp).visibility = View.VISIBLE
-        (view.findViewById<View>(R.id.next_timestamp) as TextView).text = String.format("%.1fs",
-            entry.millisToNextAlarm as Float / 1000.0f)
+        (view.findViewById<View>(R.id.next_timestamp) as TextView).text = String.format("%.1fs", entry.millisToNextAlarm.toFloat() / 1000.0f)
       }
       return view
     }
