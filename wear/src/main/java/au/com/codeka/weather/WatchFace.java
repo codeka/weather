@@ -430,11 +430,11 @@ public class WatchFace extends CanvasWatchFaceService {
               textPaint);
 
           String room = event.room;
-          // strip MTV-1600-1-, then MTV-1600- (if it's on a different floor), then MTV- (if it's
+          // strip MTV-RLS1-2-, then MTV-RLS1- (if it's on a different floor), then MTV- (if it's
           // in a different building).
-          if (room.startsWith("MTV-1600-1-")) {
+          if (room.startsWith("MTV-RLS1-2-")) {
             room = room.substring(11);
-          } else if (room.startsWith("MTV-1600-")) {
+          } else if (room.startsWith("MTV-RLS1-")) {
             room = room.substring(9);
           } else if (room.startsWith("MTV-")) {
             room = room.substring(4);
