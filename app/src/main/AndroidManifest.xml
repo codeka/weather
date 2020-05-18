@@ -62,9 +62,6 @@
             android:parentActivityName=".WeatherActivity" />
 
         <receiver
-            android:name=".WeatherAlarmReceiver"
-            android:process=":remote" />
-        <receiver
             android:name=".WeatherWidgetProvider"
             android:label="@string/app_name">
             <intent-filter>

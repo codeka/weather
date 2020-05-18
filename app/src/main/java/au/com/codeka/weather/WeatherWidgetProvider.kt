@@ -25,7 +25,7 @@ class WeatherWidgetProvider : AppWidgetProvider() {
    * custom refresh code.
    */
   override fun onReceive(context: Context, intent: Intent) {
-    WeatherAlarmReceiver.Companion.schedule(context)
+    WeatherScheduler.schedule(context)
     try {
       remoteViews = RemoteViews(context.packageName, R.layout.widget)
       componentName = ComponentName(context, WeatherWidgetProvider::class.java)
@@ -45,7 +45,7 @@ class WeatherWidgetProvider : AppWidgetProvider() {
    */
   override fun onAppWidgetOptionsChanged(context: Context, appWidgetManager: AppWidgetManager,
                                          appWidgetId: Int, newOptions: Bundle) {
-    WeatherAlarmReceiver.Companion.schedule(context)
+    WeatherScheduler.schedule(context)
     refreshWidget(context)
   }
 
@@ -55,7 +55,7 @@ class WeatherWidgetProvider : AppWidgetProvider() {
    */
   override fun onUpdate(context: Context, mgr: AppWidgetManager, appWidgetIds: IntArray) {
     super.onUpdate(context, mgr, appWidgetIds)
-    WeatherAlarmReceiver.Companion.schedule(context)
+    WeatherScheduler.schedule(context)
     val intent = Intent(context, WeatherActivity::class.java)
     val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
     remoteViews!!.setOnClickPendingIntent(R.id.weather_btn, pendingIntent)
