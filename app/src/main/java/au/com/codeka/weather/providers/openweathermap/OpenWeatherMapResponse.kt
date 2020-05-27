@@ -43,7 +43,9 @@ class OpenWeatherMapResponse() {
       get() = tempKelvin - 273.15
 
     @SerializedName("feels_like")
-    var feelsLike: Double = 0.0
+    var feelsLikeKelvin: Double = 0.0
+    val feelsLike: Double
+      get() = feelsLikeKelvin - 273.15
 
     var weather: Array<Weather> = arrayOf()
 

@@ -28,7 +28,7 @@ class OpenWeatherMapProvider : WeatherProvider {
         .create()
 
     try {
-      Log.d(TAG, "Querying Wunderground for weather info for: ${builder.lat},${builder.lng}")
+      Log.d(TAG, "Querying OpenWeatherMap for weather info for: ${builder.lat},${builder.lng}")
       val url = URL("https://api.openweathermap.org/data/2.5/onecall?lat=${builder.lat}&lon=${builder.lng}&appid=$API_KEY")
       Log.d(TAG, "Connecting to: $url")
       val conn = url.openConnection()

@@ -3,6 +3,7 @@ package au.com.codeka.weather
 import android.content.Context
 import android.content.SharedPreferences
 import android.location.Location
+import android.os.Looper
 import android.util.Log
 import au.com.codeka.weather.location.GeocodeProvider
 import au.com.codeka.weather.location.LocationProvider
@@ -33,6 +34,10 @@ class WeatherManager private constructor() {
       return
     }
     queryInProgress = true
+
+    // TODO: do we always have to do this?
+    Looper.prepare()
+
     val prefs = context.getSharedPreferences("au.com.codeka.weather", Context.MODE_PRIVATE)
     Log.d(TAG, "Doing a location query.")
     val locationProvider = LocationProvider(context)

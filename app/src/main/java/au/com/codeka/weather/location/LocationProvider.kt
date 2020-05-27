@@ -26,8 +26,8 @@ class LocationProvider(private val context: Context) {
     fun onLocationFetched(loc: Location?)
   }
 
-  private val locationManager: LocationManager
-  private val prefs: SharedPreferences
+  private val locationManager: LocationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+  private val prefs: SharedPreferences = context.getSharedPreferences("au.com.codeka.weather", Context.MODE_PRIVATE)
 
   /** Gets your current location as a lat/long  */
   fun getLocation(force: Boolean, locationFetcherListener: LocationFetchedListener) {
@@ -74,7 +74,7 @@ class LocationProvider(private val context: Context) {
       locationFetcherListener.onLocationFetched(myLocationListener.bestLocation)
       return
     }
-    DebugLog.current()!!.log("Using location provider: $provider")
+    DebugLog.current().log("Using location provider: $provider")
     if (provider == LocationManager.GPS_PROVIDER) {
       // if we're getting GPS location, also listen for network locations in case we don't have
       // GPS lock and we're inside or whatever.
@@ -84,7 +84,7 @@ class LocationProvider(private val context: Context) {
     locationManager.requestLocationUpdates(provider, 0, 0f, myLocationListener)
 
     // check back in 10 seconds for the best location we've received in that time.
-    DebugLog.current()!!.log("Waiting for location fix.")
+    DebugLog.current().log("Waiting for location fix.")
     Handler().postDelayed(Runnable {
       val loc = myLocationListener.bestLocation
       try {
@@ -170,7 +170,6 @@ class LocationProvider(private val context: Context) {
         provider2 == null
       } else provider1 == provider2
     }
-
   }
 
   companion object {
@@ -180,8 +179,4 @@ class LocationProvider(private val context: Context) {
         .toLong()
   }
 
-  init {
-    locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    prefs = context.getSharedPreferences("au.com.codeka.weather", Context.MODE_PRIVATE)
-  }
 }

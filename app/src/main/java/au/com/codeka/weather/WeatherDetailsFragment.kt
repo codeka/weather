@@ -33,17 +33,17 @@ class WeatherDetailsFragment : Fragment() {
 
   override fun onStart() {
     super.onStart()
-    WeatherManager.Companion.i.addUpdateRunnable(weatherUpdatedRunnable)
+    WeatherManager.i.addUpdateRunnable(weatherUpdatedRunnable)
     refresh()
   }
 
   override fun onStop() {
     super.onStop()
-    WeatherManager.Companion.i.removeUpdateRunnable(weatherUpdatedRunnable)
+    WeatherManager.i.removeUpdateRunnable(weatherUpdatedRunnable)
   }
 
   private fun refresh() {
-    val weatherInfo: WeatherInfo = WeatherManager.Companion.i.getCurrentWeather(activity) ?: return
+    val weatherInfo: WeatherInfo = WeatherManager.i.getCurrentWeather(activity) ?: return
     val currentCondition = weatherInfo.currentCondition ?: return
 
     // a bit hacky...
@@ -55,24 +55,36 @@ class WeatherDetailsFragment : Fragment() {
     if (currentCondition.temperature == null) {
       (rootView!!.findViewById<View>(R.id.current_temp) as TextView).text = "??°C"
     } else {
-      (rootView!!.findViewById<View>(R.id.current_temp) as TextView).text = String.format("%d°C", (currentCondition.temperature
-          ?: 0.0).roundToInt())
+      (rootView!!.findViewById<View>(R.id.current_temp) as TextView).text =
+          String.format("%d°C", (currentCondition.temperature ?: 0.0).roundToInt())
     }
-    (rootView!!.findViewById<View>(R.id.current_description) as TextView).text = currentCondition.description
-    (rootView!!.findViewById<View>(R.id.observation_location) as TextView).text = String.format("at %s", currentCondition.observationLocation ?: weatherInfo.geocodeInfo?.longName ?: "??")
+    (rootView!!.findViewById<View>(R.id.current_description) as TextView).text =
+        currentCondition.description
+    (rootView!!.findViewById<View>(R.id.observation_location) as TextView).text =
+        String.format(
+            "at %s",
+            currentCondition.observationLocation ?: weatherInfo.geocodeInfo?.longName ?: "??")
     val now = Date()
     val millis = now.time - currentCondition.observationTime!!.time
-    (rootView!!.findViewById<View>(R.id.observation_time) as TextView).text = String.format("%d minutes ago", millis / 60000L)
-    val feelsLike = if (currentCondition.feelsLike == null) "??" else (currentCondition.feelsLike ?: 0.0).roundToInt().toString()
-    val relativeHumidity = if (currentCondition.relativeHumidity == null) "??" else (currentCondition.relativeHumidity ?: 0.0).roundToInt().toString()
-    (rootView!!.findViewById<View>(R.id.extra_info_1) as TextView).text = String.format("Feels like %s°C, %s%% relative humidity", feelsLike, relativeHumidity)
-    (rootView!!.findViewById<View>(R.id.extra_info_2) as TextView).text = String.format("%dmm last hour, %dmm today",
+    (rootView!!.findViewById<View>(R.id.observation_time) as TextView).text =
+        String.format("%d minutes ago", millis / 60000L)
+    val feelsLike =
+        if (currentCondition.feelsLike == null) "??"
+        else (currentCondition.feelsLike ?: 0.0).roundToInt().toString()
+    val relativeHumidity =
+        if (currentCondition.relativeHumidity == null) "??"
+        else (currentCondition.relativeHumidity ?: 0.0).roundToInt().toString()
+    (rootView!!.findViewById<View>(R.id.extra_info_1) as TextView).text =
+        String.format("Feels like %s°C, %s%% relative humidity", feelsLike, relativeHumidity)
+    (rootView!!.findViewById<View>(R.id.extra_info_2) as TextView).text =
+        String.format("%dmm last hour, %dmm today",
         currentCondition.precipitationLastHour.roundToInt(),
         currentCondition.precipitationToday.roundToInt())
     val hourlyParent = rootView!!.findViewById<View>(R.id.hourly_container) as LinearLayout
     hourlyParent.removeAllViews()
     for (hourlyForecast in weatherInfo.hourlyForecasts) {
-      val hourlyForecastView = inflater.inflate(R.layout.weather_details_hourly_row, hourlyParent, false)
+      val hourlyForecastView =
+          inflater.inflate(R.layout.weather_details_hourly_row, hourlyParent, false)
       isNight = hourlyForecast.hour < 6 || hourlyForecast.hour > 20
       var hourValue = hourlyForecast.hour.toString() + "am"
       if (hourlyForecast.hour == 0) {
@@ -80,16 +92,19 @@ class WeatherDetailsFragment : Fragment() {
       } else if (hourlyForecast.hour == 12) {
         hourValue = "12pm"
       } else if (hourlyForecast.hour > 12) {
-        hourValue = Integer.toString(hourlyForecast.hour - 12) + "pm"
+        hourValue = (hourlyForecast.hour - 12).toString() + "pm"
       }
       (hourlyForecastView.findViewById<View>(R.id.forecast_hour) as TextView).text = hourValue
-      (hourlyForecastView.findViewById<View>(R.id.forecast_icon) as ImageView).setImageResource(hourlyForecast.icon?.getSmallIconId(isNight) ?: 0)
-      (hourlyForecastView.findViewById<View>(R.id.forecast_temp) as TextView).text = String.format("%d°C", hourlyForecast.temperature.roundToInt())
+      (hourlyForecastView.findViewById<View>(R.id.forecast_icon) as ImageView)
+          .setImageResource(hourlyForecast.icon?.getSmallIconId(isNight) ?: 0)
+      (hourlyForecastView.findViewById<View>(R.id.forecast_temp) as TextView).text =
+          String.format("%d°C", hourlyForecast.temperature.roundToInt())
       if (hourlyForecast.qpfMillimeters < 0.5) {
         hourlyForecastView.findViewById<View>(R.id.forecast_precipitation).visibility = View.GONE
       } else {
         hourlyForecastView.findViewById<View>(R.id.forecast_precipitation).visibility = View.VISIBLE
-        (hourlyForecastView.findViewById<View>(R.id.forecast_precipitation) as TextView).text = String.format("%dmm", hourlyForecast.qpfMillimeters.roundToInt())
+        (hourlyForecastView.findViewById<View>(R.id.forecast_precipitation) as TextView).text =
+            String.format("%dmm", hourlyForecast.qpfMillimeters.roundToInt())
       }
       hourlyParent.addView(hourlyForecastView)
     }
@@ -113,12 +128,15 @@ class WeatherDetailsFragment : Fragment() {
       } else if (forecast.offset > 1) {
         val cal: Calendar = GregorianCalendar()
         cal.add(Calendar.DAY_OF_YEAR, forecast.offset)
-        day = cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US)
+        day = cal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US)!!
       }
       (forecastView.findViewById<View>(R.id.forecast_day) as TextView).text = day
-      (forecastView.findViewById<View>(R.id.forecast_description) as TextView).text = forecast.description
-      (forecastView.findViewById<View>(R.id.forecast_temp_high) as TextView).text = String.format("%d°C", forecast.highTemperature.roundToInt())
-      (forecastView.findViewById<View>(R.id.forecast_temp_low) as TextView).text = String.format("%d°C", forecast.lowTemperature.roundToInt())
+      (forecastView.findViewById<View>(R.id.forecast_description) as TextView).text =
+          forecast.description
+      (forecastView.findViewById<View>(R.id.forecast_temp_high) as TextView).text =
+          String.format("%d°C", forecast.highTemperature.roundToInt())
+      (forecastView.findViewById<View>(R.id.forecast_temp_low) as TextView).text =
+          String.format("%d°C", forecast.lowTemperature.roundToInt())
       (forecastView.findViewById<View>(R.id.forecast_icon) as ImageView).setImageResource(
           forecast.icon!!.getLargeIconId(false))
       forecastParent.addView(forecastView)

@@ -16,8 +16,6 @@ import java.util.concurrent.TimeUnit
  */
 class WeatherScheduler {
   companion object {
-    private val TAG = WeatherScheduler::class.java.simpleName
-
     private const val NOTIFICATION_ID = 3871
     private const val NOTIFICATION_CHANNEL_ID = "weather_refresh"
 
@@ -36,11 +34,21 @@ class WeatherScheduler {
     }
   }
 
-  private class WeatherWorker(private val context: Context, params: WorkerParameters)
+  class WeatherWorker(private val context: Context, params: WorkerParameters)
     : Worker(context, params) {
     override fun doWork(): Result {
-      setForegroundAsync(createForegroundInfo(context))
+      // Make sure we wait for the foreground task to complete before actually returning (sometimes
+      // WeatherManager.refreshWeather can return instantly).
+      setForegroundAsync(createForegroundInfo(context)).get()
+
       WeatherManager.i.refreshWeather(context, false /* force */)
+
+      // TODO: this is a crazy hack... sometimes the foreground icon hasn't finished being created
+      // before we return (even when we get() the future) and there's a race where it never goes
+      // away. Really we should only create the icon if we actually need to do something
+      // long-running.
+      Thread.sleep(1000)
+
       return Result.success()
     }
 
@@ -52,14 +60,15 @@ class WeatherScheduler {
       val intent = WorkManager.getInstance(context).createCancelPendingIntent(getId())
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        createChannel(context);
+        ensureChannel(context);
       }
 
       val notification = NotificationCompat.Builder(context, id)
           .setContentTitle(title)
           .setTicker(title)
-          .setSmallIcon(R.drawable.weather_clear)
+          .setSmallIcon(R.drawable.weather_mediumrain_small)
           .setOngoing(true)
+          .setChannelId(NOTIFICATION_CHANNEL_ID)
           .addAction(android.R.drawable.ic_delete, cancel, intent)
           .build()
 
@@ -67,7 +76,7 @@ class WeatherScheduler {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun createChannel(context: Context) {
+    private fun ensureChannel(context: Context) {
       val name: CharSequence = context.getString(R.string.notification_channel_name)
       val description: String = context.getString(R.string.notification_channel_desc)
       val importance: Int = NotificationManager.IMPORTANCE_DEFAULT

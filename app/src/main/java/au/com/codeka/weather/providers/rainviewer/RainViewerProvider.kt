@@ -9,14 +9,15 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
 import java.io.BufferedInputStream
 import java.io.InputStreamReader
 import java.net.URL
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.math.ln
 import kotlin.math.roundToInt
+
 
 class RainViewerProvider : MapOverlayProvider {
   companion object {
@@ -82,11 +83,13 @@ class RainViewerProvider : MapOverlayProvider {
     return overlays
   }
 
-  private fun fetchTimestamps(): TimestampResponse {
+  private fun fetchTimestamps(): ArrayList<Int> {
     val url = URL("https://api.rainviewer.com/public/maps.json")
     val conn = url.openConnection()
     val ins = BufferedInputStream(conn.getInputStream())
     val json = JsonReader(InputStreamReader(ins, "UTF-8"))
-    return gson.fromJson(json, TimestampResponse::class.java)
+
+    val responseType = object : TypeToken<ArrayList<Int>>() {}.type
+    return gson.fromJson(json, responseType)
   }
 }

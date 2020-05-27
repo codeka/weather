@@ -2,9 +2,7 @@ package au.com.codeka.weather.model
 
 import java.util.*
 
-/**
- * POJO that represents the "current" conditions.
- */
+/** POJO that represents the "current" conditions. */
 class CurrentCondition {
   var observationLocation: String? = null
     private set
@@ -26,7 +24,7 @@ class CurrentCondition {
     private set
 
   class Builder {
-    private val currentCondition: CurrentCondition
+    private val currentCondition: CurrentCondition = CurrentCondition()
 
     fun setObservationLocation(location: String?): Builder {
       currentCondition.observationLocation = location
@@ -71,10 +69,6 @@ class CurrentCondition {
 
     fun build(): CurrentCondition {
       return currentCondition
-    }
-
-    init {
-      currentCondition = CurrentCondition()
     }
   }
 }
