@@ -85,10 +85,6 @@ class WeatherActivity : AppCompatActivity() {
         refreshWeather()
         true
       }
-      R.id.debug -> {
-        showDebugActivity()
-        true
-      }
       R.id.activity_log -> {
         showDebugLogActivity()
         true
@@ -100,10 +96,6 @@ class WeatherActivity : AppCompatActivity() {
 
   private fun refreshWeather() {
     WeatherManager.i.refreshWeather(this, true)
-  }
-
-  private fun showDebugActivity() {
-    startActivity(Intent(this, DebugActivity::class.java))
   }
 
   private fun showDebugLogActivity() {

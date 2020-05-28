@@ -69,6 +69,7 @@ class WeatherScheduler {
           .setSmallIcon(R.drawable.weather_mediumrain_small)
           .setOngoing(true)
           .setChannelId(NOTIFICATION_CHANNEL_ID)
+          .setPriority(NotificationManager.IMPORTANCE_LOW)
           .addAction(android.R.drawable.ic_delete, cancel, intent)
           .build()
 
@@ -79,7 +80,7 @@ class WeatherScheduler {
     private fun ensureChannel(context: Context) {
       val name: CharSequence = context.getString(R.string.notification_channel_name)
       val description: String = context.getString(R.string.notification_channel_desc)
-      val importance: Int = NotificationManager.IMPORTANCE_DEFAULT
+      val importance: Int = NotificationManager.IMPORTANCE_LOW
       val channel = NotificationChannel(NOTIFICATION_CHANNEL_ID, name, importance)
       channel.description = description
       context.getSystemService(NotificationManager::class.java)!!.createNotificationChannel(channel)

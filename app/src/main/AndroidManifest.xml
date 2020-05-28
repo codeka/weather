@@ -53,10 +53,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DebugActivity"
-            android:label="@string/debug_activity_title"
-            android:parentActivityName=".WeatherActivity" />
-        <activity
             android:name=".DebugLogActivity"
             android:label="@string/debug_activity_title"
             android:parentActivityName=".WeatherActivity" />

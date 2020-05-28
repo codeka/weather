@@ -11,13 +11,12 @@ import au.com.codeka.weather.model.MapOverlay
 import au.com.codeka.weather.model.WeatherInfo
 import au.com.codeka.weather.providers.openweathermap.OpenWeatherMapProvider
 import au.com.codeka.weather.providers.rainviewer.RainViewerProvider
-import au.com.codeka.weather.providers.wunderground.WundergroundProvider
 import com.google.android.gms.maps.model.LatLngBounds
-import java.io.InputStream
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class WeatherManager private constructor() {
-  private var queryInProgress = false
+  private var lastQueryTime = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(99)
   private val onUpdateRunnables = ArrayList<Runnable>()
 
   /** Adds a runnable to be called when the weather is updated (may not happen on UI thread)  */
@@ -30,35 +29,42 @@ class WeatherManager private constructor() {
   }
 
   fun refreshWeather(context: Context, force: Boolean) {
-    if (queryInProgress) {
+    val now = System.currentTimeMillis()
+    if (lastQueryTime < now - TimeUnit.MINUTES.toMillis(10) && !force) {
       return
     }
-    queryInProgress = true
+    lastQueryTime = now
 
-    // TODO: do we always have to do this?
-    Looper.prepare()
-
-    val prefs = context.getSharedPreferences("au.com.codeka.weather", Context.MODE_PRIVATE)
-    Log.d(TAG, "Doing a location query.")
-    val locationProvider = LocationProvider(context)
-    locationProvider.getLocation(force, object : LocationProvider.LocationFetchedListener {
-      override fun onLocationFetched(loc: Location?) {
-        if (loc == null) {
-          return
-        }
-
-        Log.i(TAG, "Got location: " + loc.latitude + "," + loc.longitude)
-        DebugLog.current().setLocation(loc.latitude, loc.longitude)
-        DebugLog.current().log("Got location fix: " + loc.latitude + "," + loc.longitude)
-        val needWeatherQuery = force || checkNeedWeatherQuery(loc, prefs)
-        if (needWeatherQuery) {
-          queryWeather(context, loc, prefs)
-        } else {
-          DebugLog.current().log("No weather query required.")
-          queryInProgress = false
-        }
+    try {
+      // We may be running on a background worker thread, so prepare a looper if that's the case.
+      if (Looper.myLooper() == null) {
+        Looper.prepare()
       }
-    })
+
+      val prefs = context.getSharedPreferences("au.com.codeka.weather", Context.MODE_PRIVATE)
+      Log.d(TAG, "Doing a location query.")
+      val locationProvider = LocationProvider(context)
+      locationProvider.getLocation(force, object : LocationProvider.LocationFetchedListener {
+        override fun onLocationFetched(loc: Location?) {
+          if (loc == null) {
+            Log.i(TAG, "Got a null location?")
+            return
+          }
+
+          Log.i(TAG, "Got location: " + loc.latitude + "," + loc.longitude)
+          DebugLog.current().setLocation(loc.latitude, loc.longitude)
+          DebugLog.current().log("Got location fix: " + loc.latitude + "," + loc.longitude)
+          val needWeatherQuery = force || checkNeedWeatherQuery(loc, prefs)
+          if (needWeatherQuery) {
+            queryWeather(context, loc, prefs)
+          } else {
+            DebugLog.current().log("No weather query required.")
+          }
+        }
+      })
+    } catch(e: Throwable) {
+      Log.e(TAG, "Error in refreshWeather")
+    }
   }
 
   fun getCurrentWeather(context: Context?): WeatherInfo? {
@@ -135,7 +141,6 @@ class WeatherManager private constructor() {
       for (runnable in onUpdateRunnables) {
         runnable.run()
       }
-      queryInProgress = false
     })
     t.start()
   }
