@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
  */
 class LocationProvider(private val context: Context) {
   interface LocationFetchedListener {
-    fun onLocationFetched(loc: Location?)
+    fun onLocationFetched(loc: Location)
   }
 
   private val locationManager: LocationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -57,7 +57,7 @@ class LocationProvider(private val context: Context) {
     val haveCoarseLocation = ActivityCompat.checkSelfPermission(context,
         Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
     if (!haveCoarseLocation || !haveFineLocation) {
-      // We'll only do this if we're called in the context of an activity. If it's the alarm
+      // We'll only do this if we're called in the context of an activity. If it's the worker
       // receiver calling us, then don't bother.
       if (context is Activity) {
         ActivityCompat.requestPermissions(context, arrayOf(
@@ -71,7 +71,7 @@ class LocationProvider(private val context: Context) {
         locationManager.getLastKnownLocation(provider))
     if (myLocationListener.isLocationGoodEnough) {
       // if lastKnownLocation is good enough, just use it.
-      locationFetcherListener.onLocationFetched(myLocationListener.bestLocation)
+      locationFetcherListener.onLocationFetched(myLocationListener.bestLocation!!)
       return
     }
     DebugLog.current().log("Using location provider: $provider")
@@ -94,7 +94,11 @@ class LocationProvider(private val context: Context) {
         // just ignore it.
         return@Runnable
       }
-      locationFetcherListener.onLocationFetched(loc)
+      if (loc != null) {
+        locationFetcherListener.onLocationFetched(loc)
+      } else {
+        DebugLog.current().log("No location found after 10 seconds, giving up.")
+      }
     }, 10000)
   }
 

@@ -9,7 +9,6 @@ import androidx.core.app.NotificationCompat
 import androidx.work.*
 import java.util.concurrent.TimeUnit
 
-
 /**
  * WeatherScheduler works with the Android WorkManager API to schedule refreshes of weather info
  * at various times.
@@ -31,6 +30,19 @@ class WeatherScheduler {
 
       WorkManager.getInstance(context).enqueueUniquePeriodicWork(
           "weather_refresh", ExistingPeriodicWorkPolicy.REPLACE, request)
+    }
+
+    fun scheduleNow(context: Context) {
+      val constraints = Constraints.Builder()
+          .setRequiredNetworkType(NetworkType.CONNECTED)
+          .build()
+
+      val request = OneTimeWorkRequest.Builder(WeatherWorker::class.java)
+          .setConstraints(constraints)
+          .build()
+
+      WorkManager.getInstance(context).enqueueUniqueWork(
+          "weather_now", ExistingWorkPolicy.REPLACE, request)
     }
   }
 

@@ -95,6 +95,7 @@ class WeatherActivity : AppCompatActivity() {
   }
 
   private fun refreshWeather() {
+//    WeatherScheduler.scheduleNow(this)
     WeatherManager.i.refreshWeather(this, true)
   }
 

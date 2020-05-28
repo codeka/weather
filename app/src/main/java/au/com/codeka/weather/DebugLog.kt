@@ -18,6 +18,7 @@ object DebugLog {
     return currentEntryBuilder!!
   }
 
+  /** Save the current entry and create a new one. */
   fun saveCurrent(context: Context) {
     val entry = current().build()
     currentEntryBuilder = null
@@ -35,7 +36,7 @@ object DebugLog {
   }
 
   /** Loads the activity log from disk.  */
-  fun load(context: Context): List<Entry> {
+  fun load(context: Context): ArrayList<Entry> {
     val entries = ArrayList<Entry>()
     val gson = GsonBuilder().create()
     val minTimestamp = System.currentTimeMillis() - 1000 * 60 * 1440
@@ -67,7 +68,7 @@ object DebugLog {
     var millisToNextAlarm: Long = 0
     var lat = 0.0
     var lng = 0.0
-    var logs: Array<LogEntry?>? = null
+    var logs: ArrayList<LogEntry> = ArrayList()
 
     fun hasLocation(): Boolean {
       return lat != 0.0 && lng != 0.0
@@ -77,31 +78,15 @@ object DebugLog {
       get() = String.format(Locale.ENGLISH,
           "<a href=\"https://www.google.com.au/maps/preview/@%f,%f,16z\">%f,%f</a>",
           lat, lng, lat, lng)
-
   }
 
-  class LogEntry {
-    var timestamp: Long = 0
-    var message: String? = null
-  }
+  data class LogEntry(val timestamp: Long, val message: String)
 
   class EntryBuilder {
-    private val entry: Entry
+    private val entry: Entry = Entry()
 
-    fun log(msg: String?): EntryBuilder {
-      if (entry.logs == null) {
-        entry.logs = arrayOfNulls(1)
-      } else {
-        val newEntries = arrayOfNulls<LogEntry>(entry.logs!!.size + 1)
-        for (i in entry.logs!!.indices) {
-          newEntries[i] = entry.logs!![i]
-        }
-        entry.logs = newEntries
-      }
-      val logEntry = LogEntry()
-      logEntry.timestamp = System.currentTimeMillis()
-      logEntry.message = msg
-      entry.logs!![entry.logs!!.size - 1] = logEntry
+    fun log(msg: String): EntryBuilder {
+      entry.logs.add(LogEntry(System.currentTimeMillis(), msg))
       return this
     }
 
@@ -121,7 +106,6 @@ object DebugLog {
     }
 
     init {
-      entry = Entry()
       entry.timestamp = System.currentTimeMillis()
     }
   }

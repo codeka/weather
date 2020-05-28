@@ -66,25 +66,25 @@ class WundergroundProvider : WeatherProvider, MapOverlayProvider {
       for (i in 0 until response.forecast!!.txtForecast!!.days!!.size / 2) {
         builder.addForecast(Forecast.Builder()
             .setOffset(i)
-            .setDescription(response.forecast!!.txtForecast!!.days!![i * 2]!!.forecastText)
-            .setShortDescription(response.forecast!!.simpleForecast!!.days!![i]!!.conditions)
-            .setIcon(getWeatherIcon(response.forecast!!.txtForecast!!.days!![i * 2]!!.icon!!))
-            .setHighTemperature(response.forecast!!.simpleForecast!!.days!![i]!!.high!!.celsius!!.toDouble())
-            .setLowTemperature(response.forecast!!.simpleForecast!!.days!![i]!!.low!!.celsius!!.toDouble())
+            .setDescription(response.forecast!!.txtForecast!!.days!![i * 2].forecastText)
+            .setShortDescription(response.forecast!!.simpleForecast!!.days!![i].conditions)
+            .setIcon(getWeatherIcon(response.forecast!!.txtForecast!!.days!![i * 2].icon!!))
+            .setHighTemperature(response.forecast!!.simpleForecast!!.days!![i].high!!.celsius!!.toDouble())
+            .setLowTemperature(response.forecast!!.simpleForecast!!.days!![i].low!!.celsius!!.toDouble())
             .build())
       }
       for (i in response.hourlyForecast!!.indices) {
         builder.addHourlyForecast(HourlyForecast.Builder()
-            .setHour(response.hourlyForecast!![i]!!.time!!.hour!!.toInt())
-            .setTemperature(response.hourlyForecast!![i]!!.temp!!.metric!!.toDouble())
-            .setShortDescription(response.hourlyForecast!![i]!!.shortDescription)
-            .setQpfMillimeters(response.hourlyForecast!![i]!!.qpf!!.metric!!.toDouble())
-            .setIcon(getWeatherIcon(response.hourlyForecast!![i]!!.icon!!))
+            .setHour(response.hourlyForecast!![i].time!!.hour!!.toInt())
+            .setTemperature(response.hourlyForecast!![i].temp!!.metric!!.toDouble())
+            .setShortDescription(response.hourlyForecast!![i].shortDescription)
+            .setQpfMillimeters(response.hourlyForecast!![i].qpf!!.metric!!.toDouble())
+            .setIcon(getWeatherIcon(response.hourlyForecast!![i].icon!!))
             .build())
       }
     } catch (e: IOException) {
       Log.e(TAG, "Error fetching weather information.", e)
-      DebugLog.current()!!.log("Error fetching weather: " + e.message)
+      DebugLog.current().log("Error fetching weather: " + e.message)
     }
   }
 

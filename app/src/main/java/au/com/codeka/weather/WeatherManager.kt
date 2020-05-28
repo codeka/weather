@@ -30,7 +30,7 @@ class WeatherManager private constructor() {
 
   fun refreshWeather(context: Context, force: Boolean) {
     val now = System.currentTimeMillis()
-    if (lastQueryTime < now - TimeUnit.MINUTES.toMillis(10) && !force) {
+    if (lastQueryTime > now - TimeUnit.MINUTES.toMillis(1) && !force) {
       return
     }
     lastQueryTime = now
@@ -45,15 +45,13 @@ class WeatherManager private constructor() {
       Log.d(TAG, "Doing a location query.")
       val locationProvider = LocationProvider(context)
       locationProvider.getLocation(force, object : LocationProvider.LocationFetchedListener {
-        override fun onLocationFetched(loc: Location?) {
-          if (loc == null) {
-            Log.i(TAG, "Got a null location?")
-            return
-          }
-
+        override fun onLocationFetched(loc: Location) {
           Log.i(TAG, "Got location: " + loc.latitude + "," + loc.longitude)
           DebugLog.current().setLocation(loc.latitude, loc.longitude)
           DebugLog.current().log("Got location fix: " + loc.latitude + "," + loc.longitude)
+          if (force) {
+            DebugLog.current().log(" - doing a force-update")
+          }
           val needWeatherQuery = force || checkNeedWeatherQuery(loc, prefs)
           if (needWeatherQuery) {
             queryWeather(context, loc, prefs)
@@ -126,6 +124,7 @@ class WeatherManager private constructor() {
       builder.withGeocodeInfo(geocodeInfo!!)
       OpenWeatherMapProvider().fetchWeather(builder)
       val weatherInfo = builder.build()
+      DebugLog.current().log("Got weather: ${weatherInfo}")
       val editor = prefs.edit()
       weatherInfo.save(editor)
       editor.putLong("TimeOfLastWeatherQuery", System.currentTimeMillis())

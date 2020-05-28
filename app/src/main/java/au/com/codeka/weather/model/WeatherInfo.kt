@@ -33,6 +33,18 @@ class WeatherInfo private constructor (var lat: Double, var lng: Double) {
     editor.putString("Weather.Current", gson.toJson(currentCondition))
   }
 
+  override fun toString(): String {
+    val gson = GsonBuilder()
+        .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+        .create()
+
+    val sb = StringBuilder()
+    sb.append("[Current: ")
+    sb.append(gson.toJson(currentCondition))
+    sb.append("]")
+    return sb.toString()
+  }
+
   class Builder(lat: Double, lng: Double) {
     private val weatherInfo = WeatherInfo(lat, lng)
 

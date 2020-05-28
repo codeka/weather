@@ -18,7 +18,8 @@ import java.util.*
  * An activity for displaying the debug logs.
  */
 class DebugLogActivity : AppCompatActivity() {
-  private var activityLogEntryAdapter: ActivityLogEntryAdapter? = null
+  private lateinit var activityLogEntryAdapter: ActivityLogEntryAdapter
+
   public override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.debug_log_activity)
@@ -29,14 +30,16 @@ class DebugLogActivity : AppCompatActivity() {
 
   public override fun onResume() {
     super.onResume()
-    val logEntries = DebugLog.load(this)
-    activityLogEntryAdapter!!.setEntries(logEntries)
+    val logEntries = arrayListOf(DebugLog.current().build())
+    logEntries.addAll(DebugLog.load(this))
+    activityLogEntryAdapter.setEntries(logEntries)
   }
 
   private inner class ActivityLogEntryAdapter : BaseAdapter() {
     val entries: MutableList<DebugLog.Entry> = ArrayList()
-    private val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.ENGLISH)
-    fun setEntries(entries: List<DebugLog.Entry>) {
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.ENGLISH)
+
+    fun setEntries(entries: ArrayList<DebugLog.Entry>) {
       this.entries.clear()
       this.entries.addAll(entries)
       notifyDataSetChanged()
@@ -65,16 +68,16 @@ class DebugLogActivity : AppCompatActivity() {
       }
       val entry = entries[position]
       val logs = StringBuilder()
-      for (log in entry.logs!!) {
-        logs.append(String.format("%8.2fs %s\n",
-            (log?.timestamp ?: 0L - entry.timestamp).toFloat() / 1000.0f,
-            log?.message))
+      for (log in entry.logs) {
+        logs.append(String.format("%8.2fs %s\n", log.timestamp.toFloat() / 1000.0f, log.message))
       }
-      (view.findViewById<View>(R.id.timestamp) as TextView).text = DATE_FORMAT.format(Date(entry.timestamp))
+      (view.findViewById<View>(R.id.timestamp) as TextView).text =
+          dateFormat.format(Date(entry.timestamp))
       if (entry.hasLocation()) {
         view.findViewById<View>(R.id.location).visibility = View.VISIBLE
         (view.findViewById<View>(R.id.location) as TextView).text = Html.fromHtml(entry.mapLink)
-        (view.findViewById<View>(R.id.location) as TextView).movementMethod = LinkMovementMethod.getInstance()
+        (view.findViewById<View>(R.id.location) as TextView).movementMethod =
+            LinkMovementMethod.getInstance()
       } else {
         view.findViewById<View>(R.id.location).visibility = View.GONE
       }
@@ -83,7 +86,8 @@ class DebugLogActivity : AppCompatActivity() {
         view.findViewById<View>(R.id.next_timestamp).visibility = View.GONE
       } else {
         view.findViewById<View>(R.id.next_timestamp).visibility = View.VISIBLE
-        (view.findViewById<View>(R.id.next_timestamp) as TextView).text = String.format("%.1fs", entry.millisToNextAlarm.toFloat() / 1000.0f)
+        (view.findViewById<View>(R.id.next_timestamp) as TextView).text =
+            String.format("%.1fs", entry.millisToNextAlarm.toFloat() / 1000.0f)
       }
       return view
     }

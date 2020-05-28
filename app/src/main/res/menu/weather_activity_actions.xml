@@ -7,6 +7,6 @@
           app:showAsAction="ifRoom"  />
     <item android:id="@+id/activity_log"
           android:icon="@drawable/ic_menu_settings_holo_light"
-          android:title="Activity log"
+          android:title="Debug log"
           app:showAsAction="never" />
 </menu>
