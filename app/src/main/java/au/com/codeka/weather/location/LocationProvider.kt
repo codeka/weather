@@ -44,13 +44,9 @@ class LocationProvider(private val context: Context) {
       prefs.edit().putLong("TimeSinceLastGpsRequest", now).apply()
     }
     val criteria = Criteria()
-    var provider: String? = LocationManager.PASSIVE_PROVIDER
+    var provider: String = LocationManager.PASSIVE_PROVIDER
     if (doGpsRequest) {
-      provider = locationManager.getBestProvider(criteria, true)
-      if (provider == null) {
-        // fallback to network provider if we can't get GPS provider
-        provider = LocationManager.NETWORK_PROVIDER
-      }
+      provider = locationManager.getBestProvider(criteria, true) ?: LocationManager.NETWORK_PROVIDER
     }
     val haveFineLocation = ActivityCompat.checkSelfPermission(context,
         Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -64,11 +60,10 @@ class LocationProvider(private val context: Context) {
             Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION
         ), 1)
       }
-      Log.w(TAG, "No location permission, cannot get current location.")
+      DebugLog.current().log("No location permission, cannot get current location")
       return
     }
-    val myLocationListener = MyLocationListener(
-        locationManager.getLastKnownLocation(provider))
+    val myLocationListener = MyLocationListener(locationManager.getLastKnownLocation(provider))
     if (myLocationListener.isLocationGoodEnough) {
       // if lastKnownLocation is good enough, just use it.
       locationFetcherListener.onLocationFetched(myLocationListener.bestLocation!!)

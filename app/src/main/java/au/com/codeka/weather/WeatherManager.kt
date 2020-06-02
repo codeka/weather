@@ -62,6 +62,7 @@ class WeatherManager private constructor() {
       })
     } catch(e: Throwable) {
       Log.e(TAG, "Error in refreshWeather")
+      DebugLog.current().log("Error: ${e.message}")
     }
   }
 

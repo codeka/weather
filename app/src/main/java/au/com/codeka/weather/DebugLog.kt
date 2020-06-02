@@ -86,6 +86,7 @@ object DebugLog {
     private val entry: Entry = Entry()
 
     fun log(msg: String): EntryBuilder {
+      Log.i(TAG, "Msg: $msg")
       entry.logs.add(LogEntry(System.currentTimeMillis(), msg))
       return this
     }

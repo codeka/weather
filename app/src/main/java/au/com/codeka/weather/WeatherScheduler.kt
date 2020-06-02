@@ -49,6 +49,7 @@ class WeatherScheduler {
   class WeatherWorker(private val context: Context, params: WorkerParameters)
     : Worker(context, params) {
     override fun doWork(): Result {
+      DebugLog.current().log("WeatherWorker fired.")
       // Make sure we wait for the foreground task to complete before actually returning (sometimes
       // WeatherManager.refreshWeather can return instantly).
       setForegroundAsync(createForegroundInfo(context)).get()
