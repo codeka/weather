@@ -174,7 +174,7 @@ class LocationProvider(private val context: Context) {
   companion object {
     private const val TWO_MINUTES = 1000 * 60 * 2
     private const val TAG = "codeka.weather"
-    private const val LOCATION_UPDATE_TIME_MS = 10 * 60 * 1000 // every 10 minutes
+    private const val LOCATION_UPDATE_TIME_MS = 3 * 60 * 60 * 1000 // every 3 hours
         .toLong()
   }
 

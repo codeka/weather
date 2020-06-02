@@ -24,7 +24,7 @@ class WeatherScheduler {
           .setRequiredNetworkType(NetworkType.CONNECTED)
           .build()
 
-      val request = PeriodicWorkRequest.Builder(WeatherWorker::class.java, 15, TimeUnit.MINUTES)
+      val request = PeriodicWorkRequest.Builder(WeatherWorker::class.java, 1, TimeUnit.HOURS)
           .setConstraints(constraints)
           .build()
 
