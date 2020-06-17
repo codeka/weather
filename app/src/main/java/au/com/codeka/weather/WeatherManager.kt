@@ -122,7 +122,9 @@ class WeatherManager private constructor() {
     val t = Thread(Runnable {
       val geocodeInfo = GeocodeProvider().getGeocodeInfo(context, loc.latitude, loc.longitude)
       val builder = WeatherInfo.Builder(loc.latitude, loc.longitude)
-      builder.withGeocodeInfo(geocodeInfo!!)
+      if (geocodeInfo != null) {
+        builder.withGeocodeInfo(geocodeInfo)
+      }
       OpenWeatherMapProvider().fetchWeather(builder)
       val weatherInfo = builder.build()
       DebugLog.current().log("Got weather: ${weatherInfo}")
